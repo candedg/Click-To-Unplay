@@ -1,7 +1,9 @@
 let nav = new Navegador();
 
 function setup() {
-  createCanvas(400, windowHeight);
+  let cnv = createCanvas(400, windowHeight);
+  let x = (windowWidth - width) / 2;
+  cnv.position(x, 0);
 
   let p = new Pagina01();
   nav.agregarPagina(p);
