@@ -7,6 +7,15 @@ let puntos = 0;
 let gameOver = false;
 let gameStarted = false;
 
+// Sistema de anuncios
+let manzanasGratis = 3; // Contador de manzanas gratis
+let mostrandoOfertaAnuncio = false; // Si está mostrando la oferta de ver anuncio
+let mostrandoAnuncio = false; // Si está mostrando el anuncio
+let anuncioActual = null; // Imagen del anuncio actual
+let tiempoInicioAnuncio = 0; // Tiempo cuando empezó el anuncio
+let duracionAnuncio = 10000; // 10 segundos en milisegundos
+let frutaPendiente = false; // Si hay una fruta esperando a ser comida después del anuncio
+
 // Área de juego adaptada
 const margenIzquierdo = 10;
 const margenDerecho = 10;
@@ -56,6 +65,12 @@ class Pagina03 extends Pagina {
         // Fondo azul para toda la pantalla
         background(0, 0, 255);
 
+        // Si está mostrando anuncio, solo mostrar el anuncio
+        if (mostrandoAnuncio) {
+            this.dibujarAnuncio();
+            return;
+        }
+
         // Calcular altura del título
         tituloAltura = height / 8;
 
@@ -84,11 +99,17 @@ class Pagina03 extends Pagina {
         fill(...colorArea);
         rect(areaX, areaY, areaAncho, areaAlto);
 
-        // Mostrar puntos
+        // Mostrar puntos y manzanas gratis restantes
         fill(0);
         textAlign(LEFT, BASELINE);
         textSize(20);
         text(textoPuntos + puntos, posicionTextoPuntos.x, posicionTextoPuntos.y);
+
+        // Si está mostrando la oferta de anuncio
+        if (mostrandoOfertaAnuncio) {
+            this.dibujarOfertaAnuncio();
+            return;
+        }
 
         if (!gameStarted && !gameOver) {
             // Mostrar mensaje de inicio
@@ -174,21 +195,146 @@ class Pagina03 extends Pagina {
         }
     }
 
+    dibujarOfertaAnuncio() {
+        // Fondo semi-transparente
+        push();
+        fill(0, 0, 0, 150);
+        rect(areaX, areaY, areaAncho, areaAlto);
+        pop();
+
+        // Área del mensaje
+        let mensajeX = areaX + 20;
+        let mensajeY = areaY + areaAlto/2 - 80;
+        let mensajeAncho = areaAncho - 40;
+        let mensajeAlto = 160;
+
+        // Fondo del mensaje
+        push();
+        fill(255, 255, 255);
+        stroke(0);
+        strokeWeight(2);
+        rect(mensajeX, mensajeY, mensajeAncho, mensajeAlto, 10);
+        pop();
+
+        // Texto del mensaje
+        push();
+        fill(0);
+        textAlign(CENTER, CENTER);
+        textSize(18);
+        text("Se te agotaron las manzanas gratis", areaX + areaAncho/2, mensajeY + 30);
+        text("¿Mirar anuncio para seguir jugando?", areaX + areaAncho/2, mensajeY + 55);
+        pop();
+
+        // Botones
+        let botonAncho = 80;
+        let botonAlto = 40;
+        let espacioBotones = 40;
+        let botonSiX = areaX + areaAncho/2 - botonAncho - espacioBotones/2;
+        let botonNoX = areaX + areaAncho/2 + espacioBotones/2;
+        let botonesY = mensajeY + 100;
+
+        // Botón SÍ
+        push();
+        fill(0, 255, 0);
+        stroke(0);
+        strokeWeight(2);
+        rect(botonSiX, botonesY, botonAncho, botonAlto, 5);
+        fill(0);
+        textAlign(CENTER, CENTER);
+        textSize(16);
+        text("SÍ", botonSiX + botonAncho/2, botonesY + botonAlto/2);
+        pop();
+
+        // Botón NO
+        push();
+        fill(255, 0, 0);
+        stroke(0);
+        strokeWeight(2);
+        rect(botonNoX, botonesY, botonAncho, botonAlto, 5);
+        fill(0);
+        textAlign(CENTER, CENTER);
+        textSize(16);
+        text("NO", botonNoX + botonAncho/2, botonesY + botonAlto/2);
+        pop();
+    }
+
+    dibujarAnuncio() {
+        // Verificar si han pasado los 10 segundos
+        if (millis() - tiempoInicioAnuncio >= duracionAnuncio) {
+            this.terminarAnuncio();
+            return;
+        }
+
+        // Mostrar anuncio ocupando todo el canvas
+        if (anuncioActual && anuncioActual.width > 0) {
+            // Escalar la imagen para que ocupe todo el ancho del canvas
+            let aspectRatio = anuncioActual.height / anuncioActual.width;
+            let alturaEscalada = width * aspectRatio;
+            
+            // Centrar verticalmente si es necesario
+            let y = (height - alturaEscalada) / 2;
+            
+            image(anuncioActual, 0, y, width, alturaEscalada);
+        } else {
+            // Fallback si no carga la imagen
+            push();
+            fill(255, 0, 255);
+            rect(0, 0, width, height);
+            fill(255);
+            textAlign(CENTER, CENTER);
+            textSize(24);
+            text("ANUNCIO", width/2, height/2);
+            pop();
+        }
+
+        // Contador de tiempo restante
+        let tiempoRestante = Math.ceil((duracionAnuncio - (millis() - tiempoInicioAnuncio)) / 1000);
+        push();
+        fill(255, 255, 255, 200);
+        stroke(0);
+        strokeWeight(2);
+        rect(width - 100, 10, 90, 30, 5);
+        fill(0);
+        textAlign(CENTER, CENTER);
+        textSize(14);
+        text(tiempoRestante + "s", width - 55, 25);
+        pop();
+    }
+
+    terminarAnuncio() {
+        mostrandoAnuncio = false;
+        anuncioActual = null;
+        
+        if (frutaPendiente) {
+            // Comer la fruta que activó el anuncio
+            this.comerFruta();
+            frutaPendiente = false;
+        }
+    }
+
+    comerFruta() {
+        puntos++;
+        this.generarNuevaFruta();
+        // Aumentar velocidad gradualmente
+        if (puntos % 5 === 0 && pausaMovimiento > 3) {
+            pausaMovimiento--;
+        }
+    }
+
     calcularAreaJuego() {
-    areaX = margenIzquierdo;
-    areaY = tituloAltura + 10 + 100;  
-    areaAncho = width - margenIzquierdo - margenDerecho;
-    areaAlto = height - areaY - 20;
+        areaX = margenIzquierdo;
+        areaY = tituloAltura + 10 + 100;  
+        areaAncho = width - margenIzquierdo - margenDerecho;
+        areaAlto = height - areaY - 20;
 
-    // Ajustar área para que sea múltiplo del tamaño de celda
-    areaAncho = floor(areaAncho / salto) * salto;
-    areaAlto = floor(areaAlto / salto) * salto;
+        // Ajustar área para que sea múltiplo del tamaño de celda
+        areaAncho = floor(areaAncho / salto) * salto;
+        areaAlto = floor(areaAlto / salto) * salto;
 
-    // Posiciones para textos
-    posicionTextoPuntos = { x: areaX + 10, y: areaY + 25 };
-    posicionTextoGameOver = { x: areaX + areaAncho / 4, y: areaY + areaAlto / 2 };
-}
-
+        // Posiciones para textos
+        posicionTextoPuntos = { x: areaX + 10, y: areaY + 25 };
+        posicionTextoGameOver = { x: areaX + areaAncho / 4, y: areaY + areaAlto / 2 };
+    }
 
     dibujarCabeza() {
         let imgCabeza;
@@ -235,7 +381,7 @@ class Pagina03 extends Pagina {
     }
 
     actualizarJuego() {
-        if (direccionCabeza === DIRECCIONES.DETENIDO) return;
+        if (direccionCabeza === DIRECCIONES.DETENIDO || mostrandoOfertaAnuncio || mostrandoAnuncio) return;
 
         // Agregar posición actual de la cabeza al cuerpo
         cuerpoSerpiente.push(createVector(posicionCabeza.x, posicionCabeza.y));
@@ -267,11 +413,15 @@ class Pagina03 extends Pagina {
 
         // Verificar si comió fruta
         if (posicionCabeza.x === posicionFruta.x && posicionCabeza.y === posicionFruta.y) {
-            puntos++;
-            this.generarNuevaFruta();
-            // Aumentar velocidad gradualmente
-            if (puntos % 5 === 0 && pausaMovimiento > 3) {
-                pausaMovimiento--;
+            if (manzanasGratis > 0) {
+                // Tiene manzanas gratis, puede comer normalmente
+                manzanasGratis--;
+                this.comerFruta();
+            } else {
+                // No tiene manzanas gratis, mostrar oferta de anuncio
+                mostrandoOfertaAnuncio = true;
+                frutaPendiente = true;
+                return;
             }
         } else {
             // Remover último segmento si no comió fruta
@@ -342,6 +492,13 @@ class Pagina03 extends Pagina {
         proximaDireccion = DIRECCIONES.DETENIDO;
         cuerpoSerpiente = [];
         pausaMovimiento = 8;
+        
+        // Resetear sistema de anuncios
+        manzanasGratis = 3;
+        mostrandoOfertaAnuncio = false;
+        mostrandoAnuncio = false;
+        anuncioActual = null;
+        frutaPendiente = false;
 
         // Posición cabeza en centro del área (alineada a la grilla)
         let celdasX = floor(areaAncho / salto);
@@ -356,9 +513,50 @@ class Pagina03 extends Pagina {
         posicionFruta = this.posicionFrutaAleatoria();
     }
 
+    mousePressed() {
+        // Si está mostrando la oferta de anuncio, manejar clicks en botones
+        if (mostrandoOfertaAnuncio) {
+            let botonAncho = 80;
+            let botonAlto = 40;
+            let espacioBotones = 40;
+            let botonSiX = areaX + areaAncho/2 - botonAncho - espacioBotones/2;
+            let botonNoX = areaX + areaAncho/2 + espacioBotones/2;
+            let botonesY = areaY + areaAlto/2 - 80 + 100;
+
+            // Click en botón SÍ
+            if (mouseX >= botonSiX && mouseX <= botonSiX + botonAncho &&
+                mouseY >= botonesY && mouseY <= botonesY + botonAlto) {
+                this.iniciarAnuncio();
+            }
+            // Click en botón NO
+            else if (mouseX >= botonNoX && mouseX <= botonNoX + botonAncho &&
+                     mouseY >= botonesY && mouseY <= botonesY + botonAlto) {
+                // Terminar juego
+                gameOver = true;
+                mostrandoOfertaAnuncio = false;
+                frutaPendiente = false;
+            }
+        }
+    }
+
+    iniciarAnuncio() {
+        mostrandoOfertaAnuncio = false;
+        mostrandoAnuncio = true;
+        tiempoInicioAnuncio = millis();
+        
+        // Seleccionar anuncio aleatorio
+        let indiceAleatorio = floor(random(anuncios.length));
+        anuncioActual = anuncios[indiceAleatorio];
+        
+        console.log(`Mostrando anuncio: ${indiceAleatorio + 1}`);
+    }
+
     keyPressed() {
+        // Si está mostrando anuncio, no permitir controles
+        if (mostrandoAnuncio) return;
+
         // Controles del juego
-        if (!gameOver) {
+        if (!gameOver && !mostrandoOfertaAnuncio) {
             let nuevaDireccion = direccionCabeza;
             
             switch (keyCode) {
