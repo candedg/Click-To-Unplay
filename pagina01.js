@@ -53,16 +53,15 @@ class Pagina01 extends Pagina {
         pop();
 
         // Dibujo los anuncios en sus posiciones
-        if (arrayAnuncios.length > 0 && img1) {
+        if (arrayAnuncios.length > 0) {
             push();
-            imageMode(CENTER); // La imagen se dibuja centrada en la posición
+            imageMode(CENTER);
             for (let i = 0; i < arrayAnuncios.length; i++) {
                 const pos = arrayAnuncios[i];
-                if (img1.width > 0) {
-                    // Dibujo la imagen
-                    image(img1, pos.posicionX, pos.posicionY);
+                if (pos.imagen && pos.imagen.width > 0) {
+                    image(pos.imagen, pos.posicionX, pos.posicionY);
                 } else {
-                    // Fallback: si la imagen no se carga, dibujo un rectángulo con texto
+                    // fallback: si no cargó la imagen
                     push();
                     fill(255, 0, 255);
                     stroke(0);
@@ -124,7 +123,7 @@ class Pagina01 extends Pagina {
 
         } else if (primerAnuncio &&
             !(mouseX >= botonInicioX1 && mouseX <= botonInicioX2 &&
-              mouseY >= botonInicioY1 && mouseY <= botonInicioY2)) {
+                mouseY >= botonInicioY1 && mouseY <= botonInicioY2)) {
             // Click general (fuera del botón "Inicio") después del primer anuncio
             console.log('*** Click general - aparece anuncio');
             this.crearAnuncio();
@@ -139,50 +138,53 @@ class Pagina01 extends Pagina {
         let intentos = 0;
         const maxIntentos = 50;
 
-        // Obtengo el tamaño de la imagen (si no está cargada, uso fallback 100x100)
-        const imgWidth = (img1 && img1.width) ? img1.width : 100;
-        const imgHeight = (img1 && img1.height) ? img1.height : 100;
+        const img = anuncios[indiceAnuncio]; // elegir imagen actual
+        console.log(`Mostrando anuncio: data/anuncios/a${indiceAnuncio + 1}.png`);
+        const imgWidth = img.width || 100;
+        const imgHeight = img.height || 100;
 
         const marginX = imgWidth / 2;
         const marginY = imgHeight / 2;
 
-        // Área del botón "Inicio" para evitar superposición
         const botonInicioX1 = width / 2 - 25;
         const botonInicioX2 = width / 2 + 25;
         const botonInicioY1 = height - 25;
         const botonInicioY2 = height - 10;
 
-        let colisionaConBoton = false; // variable para controlar la colisión
+        let colisionaConBoton = false;
 
         do {
-            // Genero posición aleatoria en todo el canvas, sin márgenes
             x = random(0, width);
             y = random(0, height);
 
-            // Coordenadas del rectángulo del anuncio, basado en centro y tamaño
             const anuncioLeft = x - marginX;
             const anuncioRight = x + marginX;
             const anuncioTop = y - marginY;
             const anuncioBottom = y + marginY;
 
-            // Verifico si el anuncio colisiona con el área del botón "Inicio"
-            colisionaConBoton = !(anuncioRight < botonInicioX1 || 
-                                  anuncioLeft > botonInicioX2 || 
-                                  anuncioBottom < botonInicioY1 || 
-                                  anuncioTop > botonInicioY2);
+            colisionaConBoton = !(anuncioRight < botonInicioX1 ||
+                anuncioLeft > botonInicioX2 ||
+                anuncioBottom < botonInicioY1 ||
+                anuncioTop > botonInicioY2);
 
             intentos++;
-
         } while (intentos < maxIntentos && colisionaConBoton);
 
+        // Guardamos posición + qué imagen usar
         posicionAnuncio = {
             posicionX: x,
-            posicionY: y
+            posicionY: y,
+            imagen: img
         };
 
         arrayAnuncios.push(posicionAnuncio);
+
+        // Avanzar índice para la próxima vez (cíclico)
+        indiceAnuncio = (indiceAnuncio + 1) % anuncios.length;
+
         console.log('*** Anuncio creado en:', x, y, 'Total anuncios:', arrayAnuncios.length);
     }
+
 
     limpiarEstado() {
         // Limpio el array y bandera para reiniciar la página

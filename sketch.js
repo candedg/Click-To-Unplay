@@ -1,5 +1,4 @@
 let nav = new Navegador();
-let img1; // Variable global para la imagen de anuncio
 
 // Variables globales para las imágenes del Snake
 let cabezaIzquierdaImg;
@@ -9,9 +8,15 @@ let cabezaAbajoImg;
 let frutaImg;
 let cuerpoImg;
 
+let anuncios = []; //array con anuncios
+let indiceAnuncio = 0; // índice de la próxima imagen a mostrar
+
 function preload() {
-    // Cargar todas las imágenes globalmente en preload()
-    img1 = loadImage("data/Image-not-found.png");
+    // Cargar anuncios
+    for (let i = 1; i <= 15; i++) {
+        let img = loadImage(`data/anuncios/a${i}.png`);
+        anuncios.push(img);
+    }
     
     // Cargar imágenes del Snake
     cabezaIzquierdaImg = loadImage("data/spasmic-snake-assets/img/cabeza_izquierda.png");
