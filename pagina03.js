@@ -22,9 +22,16 @@ let duplicadorVisible = false; // Si el duplicador está visible
 let posicionDuplicador = null; // Posición del duplicador
 duplicadorImg = null; // Imagen del duplicador (se carga globalmente)
 let tiempoUltimoDuplicador = 0; // Último tiempo que apareció un duplicador
-let intervaloDuplicador = 15000; // 30 segundos en milisegundos
+let intervaloDuplicador = 30000; // 30 segundos en milisegundos
 const anchoDuplicador = 70; // Ancho fijo del duplicador
 let altoDuplicador = 70; // Alto del duplicador (se calculará proporcionalmente)
+
+// Sistema de anuncios especiales (cada 5 manzanas) - CORREGIDO
+let contadorManzanas = 0; // Contador de manzanas comidas
+let anuncioEspecialActivo = false; // Si hay un anuncio especial en lugar de manzana
+let posicionAnuncioEspecial = null; // Posición del anuncio especial
+let imagenAnuncioEspecial = null; // Imagen del anuncio especial actual
+const tamanoAnuncioEspecial = 30; // 30x30 px
 
 // Área de juego adaptada
 const margenIzquierdo = 10;
@@ -39,7 +46,7 @@ const salto = 25; // tamaño de la celda y salto
 
 let verGrilla = false;
 
-let pausaMovimiento = 20; // frames para mover la serpiente (más rápido)
+let pausaMovimiento = 15; // frames para mover la serpiente (más rápido)
 
 // Textos
 let textoPuntos = "PUNTOS: ";
@@ -126,8 +133,8 @@ class Pagina03 extends Pagina {
             fill(0);
             textAlign(CENTER, CENTER);
             textSize(18);
-            text(textoInicio, areaX + areaAncho/2, areaY + areaAlto/2);
-            
+            text(textoInicio, areaX + areaAncho / 2, areaY + areaAlto / 2);
+
             // Dibujar solo la cabeza inicial si la imagen está disponible
             if (cabezaDerechaImg && cabezaDerechaImg.width > 0) {
                 image(cabezaDerechaImg, posicionCabeza.x, posicionCabeza.y, salto, salto);
@@ -139,7 +146,7 @@ class Pagina03 extends Pagina {
                 rect(posicionCabeza.x, posicionCabeza.y, salto, salto);
                 pop();
             }
-            
+
         } else if (!gameOver) {
             // Verificar si debe aparecer el duplicador
             if (gameStarted && !duplicadorVisible && !mostrandoOfertaAnuncio && !mostrandoAnuncio) {
@@ -173,16 +180,36 @@ class Pagina03 extends Pagina {
             // Dibujar cabeza según dirección
             this.dibujarCabeza();
 
-            // Dibujar fruta
-            if (frutaImg && frutaImg.width > 0) {
-                image(frutaImg, posicionFruta.x, posicionFruta.y, salto, salto);
+            // Dibujar fruta o anuncio especial
+            if (anuncioEspecialActivo && posicionAnuncioEspecial && imagenAnuncioEspecial) {
+                // Dibujar anuncio especial
+                if (imagenAnuncioEspecial.width > 0) {
+                    image(imagenAnuncioEspecial, posicionAnuncioEspecial.x, posicionAnuncioEspecial.y, tamanoAnuncioEspecial, tamanoAnuncioEspecial);
+                } else {
+                    // Fallback: cuadrado morado para anuncio especial
+                    push();
+                    fill(255, 0, 255);
+                    stroke(255, 255, 0);
+                    strokeWeight(2);
+                    rect(posicionAnuncioEspecial.x, posicionAnuncioEspecial.y, tamanoAnuncioEspecial, tamanoAnuncioEspecial);
+                    fill(255);
+                    textAlign(CENTER, CENTER);
+                    textSize(8);
+                    text("AD", posicionAnuncioEspecial.x + tamanoAnuncioEspecial / 2, posicionAnuncioEspecial.y + tamanoAnuncioEspecial / 2);
+                    pop();
+                }
             } else {
-                // Fallback: círculo rojo para la fruta
-                push();
-                fill(255, 0, 0);
-                stroke(0);
-                ellipse(posicionFruta.x + salto/2, posicionFruta.y + salto/2, salto, salto);
-                pop();
+                // Dibujar fruta normal
+                if (frutaImg && frutaImg.width > 0) {
+                    image(frutaImg, posicionFruta.x, posicionFruta.y, salto, salto);
+                } else {
+                    // Fallback: círculo rojo para la fruta
+                    push();
+                    fill(255, 0, 0);
+                    stroke(0);
+                    ellipse(posicionFruta.x + salto / 2, posicionFruta.y + salto / 2, salto, salto);
+                    pop();
+                }
             }
 
             // Dibujar duplicador si está visible
@@ -199,7 +226,7 @@ class Pagina03 extends Pagina {
                     fill(0);
                     textAlign(CENTER, CENTER);
                     textSize(10);
-                    text("x2", posicionDuplicador.x + anchoDuplicador/2, posicionDuplicador.y + altoDuplicador/2);
+                    text("x2", posicionDuplicador.x + anchoDuplicador / 2, posicionDuplicador.y + altoDuplicador / 2);
                     pop();
                 }
             }
@@ -213,23 +240,23 @@ class Pagina03 extends Pagina {
             if (frameCount % pausaMovimiento === 0) {
                 this.actualizarJuego();
             }
-            
+
         } else {
             // Game Over
             fill(150, 0, 0);
             rect(areaX, areaY, areaAncho, areaAlto);
-            
+
             fill(255, 255, 0);
             textAlign(CENTER, CENTER);
             textSize(36);
-            text(textoGameOver, areaX + areaAncho/2, areaY + areaAlto/2 - 40);
-            
+            text(textoGameOver, areaX + areaAncho / 2, areaY + areaAlto / 2 - 40);
+
             textSize(20);
-            text("Puntos finales: " + puntos, areaX + areaAncho/2, areaY + areaAlto/2);
-            
+            text("Puntos finales: " + puntos, areaX + areaAncho / 2, areaY + areaAlto / 2);
+
             textSize(18);
-            text("Presiona ESPACIO para jugar de nuevo", areaX + areaAncho/2, areaY + areaAlto/2 + 40);
-            text("o ESC para salir", areaX + areaAncho/2, areaY + areaAlto/2 + 65);
+            text("Presiona ESPACIO para jugar de nuevo", areaX + areaAncho / 2, areaY + areaAlto / 2 + 40);
+            text("o ESC para salir", areaX + areaAncho / 2, areaY + areaAlto / 2 + 65);
         }
     }
 
@@ -242,7 +269,7 @@ class Pagina03 extends Pagina {
 
         // Área del mensaje
         let mensajeX = areaX + 20;
-        let mensajeY = areaY + areaAlto/2 - 80;
+        let mensajeY = areaY + areaAlto / 2 - 80;
         let mensajeAncho = areaAncho - 40;
         let mensajeAlto = 160;
 
@@ -259,16 +286,16 @@ class Pagina03 extends Pagina {
         fill(0);
         textAlign(CENTER, CENTER);
         textSize(18);
-        text("Se te agotaron las manzanas gratis", areaX + areaAncho/2, mensajeY + 30);
-        text("¿Mirar anuncio para seguir jugando?", areaX + areaAncho/2, mensajeY + 55);
+        text("Se te agotaron las manzanas gratis", areaX + areaAncho / 2, mensajeY + 30);
+        text("¿Mirar anuncio para seguir jugando?", areaX + areaAncho / 2, mensajeY + 55);
         pop();
 
         // Botones
         let botonAncho = 80;
         let botonAlto = 40;
         let espacioBotones = 40;
-        let botonSiX = areaX + areaAncho/2 - botonAncho - espacioBotones/2;
-        let botonNoX = areaX + areaAncho/2 + espacioBotones/2;
+        let botonSiX = areaX + areaAncho / 2 - botonAncho - espacioBotones / 2;
+        let botonNoX = areaX + areaAncho / 2 + espacioBotones / 2;
         let botonesY = mensajeY + 100;
 
         // Botón SÍ
@@ -280,7 +307,7 @@ class Pagina03 extends Pagina {
         fill(0);
         textAlign(CENTER, CENTER);
         textSize(16);
-        text("SÍ", botonSiX + botonAncho/2, botonesY + botonAlto/2);
+        text("SÍ", botonSiX + botonAncho / 2, botonesY + botonAlto / 2);
         pop();
 
         // Botón NO
@@ -292,7 +319,7 @@ class Pagina03 extends Pagina {
         fill(0);
         textAlign(CENTER, CENTER);
         textSize(16);
-        text("NO", botonNoX + botonAncho/2, botonesY + botonAlto/2);
+        text("NO", botonNoX + botonAncho / 2, botonesY + botonAlto / 2);
         pop();
     }
 
@@ -308,10 +335,10 @@ class Pagina03 extends Pagina {
             // Escalar la imagen para que ocupe todo el ancho del canvas
             let aspectRatio = anuncioActual.height / anuncioActual.width;
             let alturaEscalada = width * aspectRatio;
-            
+
             // Centrar verticalmente si es necesario
             let y = (height - alturaEscalada) / 2;
-            
+
             image(anuncioActual, 0, y, width, alturaEscalada);
         } else {
             // Fallback si no carga la imagen
@@ -321,7 +348,7 @@ class Pagina03 extends Pagina {
             fill(255);
             textAlign(CENTER, CENTER);
             textSize(24);
-            text("ANUNCIO", width/2, height/2);
+            text("ANUNCIO", width / 2, height / 2);
             pop();
         }
 
@@ -342,7 +369,7 @@ class Pagina03 extends Pagina {
     terminarAnuncio() {
         mostrandoAnuncio = false;
         anuncioActual = null;
-        
+
         if (frutaPendiente) {
             // Comer la fruta que activó el anuncio
             this.comerFruta();
@@ -352,6 +379,9 @@ class Pagina03 extends Pagina {
 
     comerFruta() {
         puntos++;
+        contadorManzanas++; // CORREGIDO: incrementar contador aquí
+        console.log("Manzanas comidas:", contadorManzanas);
+        
         this.generarNuevaFruta();
         // Aumentar velocidad gradualmente
         if (puntos % 5 === 0 && pausaMovimiento > 3) {
@@ -359,9 +389,42 @@ class Pagina03 extends Pagina {
         }
     }
 
+    // NUEVO MÉTODO: comer anuncio especial
+    comerAnuncioEspecial() {
+        console.log("¡Anuncio especial comido!");
+        
+        // Añadir 4 puntos (en lugar de 1 como la fruta normal)
+        puntos += 4;
+        
+        // Añadir 4 segmentos al cuerpo
+        for (let i = 0; i < 4; i++) {
+            if (cuerpoSerpiente.length > 0) {
+                let ultimoSegmento = cuerpoSerpiente[cuerpoSerpiente.length - 1];
+                cuerpoSerpiente.push(createVector(ultimoSegmento.x, ultimoSegmento.y));
+            } else {
+                // Si no hay cuerpo, agregar en la posición actual de la cabeza
+                cuerpoSerpiente.push(createVector(posicionCabeza.x, posicionCabeza.y));
+            }
+        }
+        
+        // Mostrar anuncio grande
+        this.activarAnuncioEspecial();
+        
+        // Resetear el sistema para las próximas 5 manzanas normales
+        contadorManzanas = 0;
+        anuncioEspecialActivo = false;
+        posicionAnuncioEspecial = null;
+        imagenAnuncioEspecial = null;
+        
+        // Generar nueva fruta normal
+        this.generarNuevaFruta();
+        
+        console.log(`Puntos después del anuncio especial: ${puntos}, Segmentos: ${cuerpoSerpiente.length}`);
+    }
+
     calcularAreaJuego() {
         areaX = margenIzquierdo;
-        areaY = tituloAltura + 10 + 100;  
+        areaY = tituloAltura + 10 + 100;
         areaAncho = width - margenIzquierdo - margenDerecho;
         areaAlto = height - areaY - 20;
 
@@ -391,7 +454,7 @@ class Pagina03 extends Pagina {
                 imgCabeza = cabezaDerechaImg;
                 break;
         }
-        
+
         if (imgCabeza && imgCabeza.width > 0) {
             image(imgCabeza, posicionCabeza.x, posicionCabeza.y, salto, salto);
         } else {
@@ -449,8 +512,12 @@ class Pagina03 extends Pagina {
             return;
         }
 
-        // Verificar si comió fruta
-        if (posicionCabeza.x === posicionFruta.x && posicionCabeza.y === posicionFruta.y) {
+        // Verificar si comió fruta o anuncio especial
+        if (anuncioEspecialActivo && this.verificarColisionAnuncioEspecial()) {
+            // Comió anuncio especial
+            this.comerAnuncioEspecial();
+        } else if (!anuncioEspecialActivo && posicionCabeza.x === posicionFruta.x && posicionCabeza.y === posicionFruta.y) {
+            // Comió fruta normal
             if (manzanasGratis > 0) {
                 // Tiene manzanas gratis, puede comer normalmente
                 manzanasGratis--;
@@ -461,13 +528,13 @@ class Pagina03 extends Pagina {
                 frutaPendiente = true;
                 return;
             }
-        } 
+        }
         // Verificar si tocó el duplicador
         else if (duplicadorVisible && this.verificarColisionDuplicador()) {
             this.activarDuplicador();
-        } 
+        }
         else {
-            // Remover último segmento si no comió fruta ni tocó duplicador
+            // Remover último segmento si no comió nada
             cuerpoSerpiente.shift();
         }
     }
@@ -490,12 +557,68 @@ class Pagina03 extends Pagina {
         return false;
     }
 
+    // CORREGIDO: verificar colisión con anuncio especial
+    verificarColisionAnuncioEspecial() {
+        if (!anuncioEspecialActivo || !posicionAnuncioEspecial) return false;
+        
+        // El anuncio especial es más pequeño (30x30) pero la colisión debe funcionar igual
+        return (posicionCabeza.x === posicionAnuncioEspecial.x && 
+                posicionCabeza.y === posicionAnuncioEspecial.y);
+    }
+
+    // CORREGIDO: generar nueva fruta o anuncio especial
     generarNuevaFruta() {
+        console.log("Generando nueva fruta. Contador:", contadorManzanas);
+        
+        // Verificar si debe aparecer anuncio especial (cada 5 manzanas)
+        if (contadorManzanas > 0 && contadorManzanas % 5 === 0) {
+            console.log("¡Debe aparecer anuncio especial!");
+            this.generarAnuncioEspecial();
+        } else {
+            console.log("Generando fruta normal");
+            // Generar fruta normal
+            anuncioEspecialActivo = false;
+            let intentos = 0;
+            do {
+                posicionFruta = this.posicionFrutaAleatoria();
+                intentos++;
+            } while (this.frutaEnSerpiente() && intentos < 100);
+        }
+    }
+
+    // NUEVO MÉTODO: generar anuncio especial
+    generarAnuncioEspecial() {
+        console.log("Generando anuncio especial");
+        anuncioEspecialActivo = true;
+        
+        // Seleccionar imagen aleatoria para el anuncio especial
+        let indiceAleatorio = floor(random(anuncios.length));
+        imagenAnuncioEspecial = anuncios[indiceAleatorio];
+        
+        // Generar posición aleatoria (alineada a la grilla como las frutas normales)
         let intentos = 0;
         do {
-            posicionFruta = this.posicionFrutaAleatoria();
+            posicionAnuncioEspecial = this.posicionFrutaAleatoria();
             intentos++;
-        } while (this.frutaEnSerpiente() && intentos < 100);
+        } while (this.anuncioEspecialEnSerpiente() && intentos < 100);
+        
+        console.log("Anuncio especial generado en:", posicionAnuncioEspecial.x, posicionAnuncioEspecial.y);
+    }
+
+    // NUEVO MÉTODO: verificar si el anuncio especial está en la serpiente
+    anuncioEspecialEnSerpiente() {
+        // Verificar cabeza
+        if (posicionAnuncioEspecial.x === posicionCabeza.x && posicionAnuncioEspecial.y === posicionCabeza.y) {
+            return true;
+        }
+
+        // Verificar cuerpo
+        for (let segmento of cuerpoSerpiente) {
+            if (posicionAnuncioEspecial.x === segmento.x && posicionAnuncioEspecial.y === segmento.y) {
+                return true;
+            }
+        }
+        return false;
     }
 
     frutaEnSerpiente() {
@@ -503,7 +626,7 @@ class Pagina03 extends Pagina {
         if (posicionFruta.x === posicionCabeza.x && posicionFruta.y === posicionCabeza.y) {
             return true;
         }
-        
+
         // Verificar cuerpo
         for (let segmento of cuerpoSerpiente) {
             if (posicionFruta.x === segmento.x && posicionFruta.y === segmento.y) {
@@ -516,10 +639,10 @@ class Pagina03 extends Pagina {
     posicionFrutaAleatoria() {
         let celdasX = floor(areaAncho / salto);
         let celdasY = floor(areaAlto / salto);
-        
+
         let celdaX = floor(random(celdasX));
         let celdaY = floor(random(celdasY));
-        
+
         let x = areaX + celdaX * salto;
         let y = areaY + celdaY * salto;
 
@@ -528,7 +651,7 @@ class Pagina03 extends Pagina {
 
     crearDuplicador() {
         if (!duplicadorImg) return; // No crear si no está cargada la imagen
-        
+
         let intentos = 0;
         const maxIntentos = 50;
         let x, y;
@@ -548,21 +671,21 @@ class Pagina03 extends Pagina {
 
         posicionDuplicador = createVector(x, y);
         duplicadorVisible = true;
-        
+
         console.log('*** Duplicador creado en:', x, y);
     }
 
     duplicadorColisionaConSerpiente(x, y) {
         // Verificar colisión con cabeza
-        if (this.rectanguloDentroDeRectangulo(x, y, anchoDuplicador, altoDuplicador, 
-                                              posicionCabeza.x, posicionCabeza.y, salto, salto)) {
+        if (this.rectanguloDentroDeRectangulo(x, y, anchoDuplicador, altoDuplicador,
+            posicionCabeza.x, posicionCabeza.y, salto, salto)) {
             return true;
         }
-        
+
         // Verificar colisión con cuerpo
         for (let segmento of cuerpoSerpiente) {
             if (this.rectanguloDentroDeRectangulo(x, y, anchoDuplicador, altoDuplicador,
-                                                  segmento.x, segmento.y, salto, salto)) {
+                segmento.x, segmento.y, salto, salto)) {
                 return true;
             }
         }
@@ -571,7 +694,7 @@ class Pagina03 extends Pagina {
 
     duplicadorColisionaConFruta(x, y) {
         return this.rectanguloDentroDeRectangulo(x, y, anchoDuplicador, altoDuplicador,
-                                                posicionFruta.x, posicionFruta.y, salto, salto);
+            posicionFruta.x, posicionFruta.y, salto, salto);
     }
 
     rectanguloDentroDeRectangulo(x1, y1, w1, h1, x2, y2, w2, h2) {
@@ -580,7 +703,7 @@ class Pagina03 extends Pagina {
 
     verificarColisionDuplicador() {
         if (!duplicadorVisible || !posicionDuplicador) return false;
-        
+
         return this.rectanguloDentroDeRectangulo(
             posicionCabeza.x, posicionCabeza.y, salto, salto,
             posicionDuplicador.x, posicionDuplicador.y, anchoDuplicador, altoDuplicador
@@ -589,10 +712,10 @@ class Pagina03 extends Pagina {
 
     activarDuplicador() {
         console.log('*** ¡Duplicador activado!');
-        
+
         // Duplicar puntos
         puntos = puntos * 2;
-        
+
         // Duplicar tamaño de la serpiente (agregar segmentos igual al tamaño actual)
         let longitudActual = cuerpoSerpiente.length;
         for (let i = 0; i < longitudActual; i++) {
@@ -602,15 +725,27 @@ class Pagina03 extends Pagina {
                 cuerpoSerpiente.push(createVector(ultimoSegmento.x, ultimoSegmento.y));
             }
         }
-        
+
         // Duplicar velocidad (reducir pausa a la mitad, mínimo 1)
         pausaMovimiento = Math.max(1, Math.floor(pausaMovimiento / 2));
-        
+
         // Ocultar duplicador
         duplicadorVisible = false;
         posicionDuplicador = null;
-        
+
         console.log(`*** Nuevos puntos: ${puntos}, Nueva velocidad: ${pausaMovimiento}, Longitud serpiente: ${cuerpoSerpiente.length + 1}`);
+    }
+
+    // NUEVO MÉTODO: activar anuncio especial (mostrar anuncio grande)
+    activarAnuncioEspecial() {
+        console.log("Activando anuncio especial grande");
+        mostrandoAnuncio = true;
+        tiempoInicioAnuncio = millis();
+
+        // Usar la misma imagen del anuncio especial pequeño para el grande
+        anuncioActual = imagenAnuncioEspecial;
+        
+        console.log("Mostrando anuncio especial grande");
     }
 
     inicializar() {
@@ -621,14 +756,20 @@ class Pagina03 extends Pagina {
         direccionAnterior = DIRECCIONES.DETENIDO;
         proximaDireccion = DIRECCIONES.DETENIDO;
         cuerpoSerpiente = [];
-        pausaMovimiento = 20;
-        
+        pausaMovimiento = 15;
+
         // Resetear sistema de anuncios
         manzanasGratis = 3;
         mostrandoOfertaAnuncio = false;
         mostrandoAnuncio = false;
         anuncioActual = null;
         frutaPendiente = false;
+
+        // CORREGIDO: resetear sistema de anuncios especiales
+        contadorManzanas = 0;
+        anuncioEspecialActivo = false;
+        posicionAnuncioEspecial = null;
+        imagenAnuncioEspecial = null;
 
         // Resetear sistema de duplicador
         tiempoInicioJuego = millis();
@@ -639,7 +780,7 @@ class Pagina03 extends Pagina {
         // Posición cabeza en centro del área (alineada a la grilla)
         let celdasX = floor(areaAncho / salto);
         let celdasY = floor(areaAlto / salto);
-        
+
         posicionCabeza = createVector(
             areaX + floor(celdasX / 2) * salto,
             areaY + floor(celdasY / 2) * salto
@@ -655,9 +796,9 @@ class Pagina03 extends Pagina {
             let botonAncho = 80;
             let botonAlto = 40;
             let espacioBotones = 40;
-            let botonSiX = areaX + areaAncho/2 - botonAncho - espacioBotones/2;
-            let botonNoX = areaX + areaAncho/2 + espacioBotones/2;
-            let botonesY = areaY + areaAlto/2 - 80 + 100;
+            let botonSiX = areaX + areaAncho / 2 - botonAncho - espacioBotones / 2;
+            let botonNoX = areaX + areaAncho / 2 + espacioBotones / 2;
+            let botonesY = areaY + areaAlto / 2 - 80 + 100;
 
             // Click en botón SÍ
             if (mouseX >= botonSiX && mouseX <= botonSiX + botonAncho &&
@@ -666,7 +807,7 @@ class Pagina03 extends Pagina {
             }
             // Click en botón NO
             else if (mouseX >= botonNoX && mouseX <= botonNoX + botonAncho &&
-                     mouseY >= botonesY && mouseY <= botonesY + botonAlto) {
+                mouseY >= botonesY && mouseY <= botonesY + botonAlto) {
                 // Terminar juego
                 gameOver = true;
                 mostrandoOfertaAnuncio = false;
@@ -679,11 +820,11 @@ class Pagina03 extends Pagina {
         mostrandoOfertaAnuncio = false;
         mostrandoAnuncio = true;
         tiempoInicioAnuncio = millis();
-        
+
         // Seleccionar anuncio aleatorio
         let indiceAleatorio = floor(random(anuncios.length));
         anuncioActual = anuncios[indiceAleatorio];
-        
+
         console.log(`Mostrando anuncio: ${indiceAleatorio + 1}`);
     }
 
@@ -694,7 +835,7 @@ class Pagina03 extends Pagina {
         // Controles del juego
         if (!gameOver && !mostrandoOfertaAnuncio) {
             let nuevaDireccion = direccionCabeza;
-            
+
             switch (keyCode) {
                 case UP_ARROW:
                 case 87: // W
@@ -741,7 +882,7 @@ class Pagina03 extends Pagina {
             textSize(12);
             noStroke();
             fill(0);
-            
+
             nav.seleccionarPagina(0);
             resetearJuego();
             return;
