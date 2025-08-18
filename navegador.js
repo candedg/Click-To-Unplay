@@ -10,7 +10,13 @@ class Navegador {
         if (!this.paginaActual) {
             this.incidePagina = 0;
             this.paginaActual = p;
-            // Llamar onEnter si existe el método
+
+            // Llamar setup si existe
+            if (this.paginaActual.setup) {
+                this.paginaActual.setup();
+            }
+
+            // Llamar onEnter si existe
             if (this.paginaActual.onEnter) {
                 this.paginaActual.onEnter();
             }
@@ -21,11 +27,16 @@ class Navegador {
         let i = (this.incidePagina + 1) % this.paginas.length;
         this.incidePagina = i;
         this.paginaActual = this.paginas[i];
-        
+
         // Resetear configuraciones globales de p5.js
         this.resetearConfiguracionesGlobales();
-        
-        // Llamar onEnter si existe el método
+
+        // Llamar setup si existe
+        if (this.paginaActual.setup) {
+            this.paginaActual.setup();
+        }
+
+        // Llamar onEnter si existe
         if (this.paginaActual.onEnter) {
             this.paginaActual.onEnter();
         }
@@ -36,11 +47,16 @@ class Navegador {
         if (i < 0) { i = this.paginas.length - 1 }
         this.incidePagina = i;
         this.paginaActual = this.paginas[i];
-        
+
         // Resetear configuraciones globales de p5.js
         this.resetearConfiguracionesGlobales();
-        
-        // Llamar onEnter si existe el método
+
+        // Llamar setup si existe
+        if (this.paginaActual.setup) {
+            this.paginaActual.setup();
+        }
+
+        // Llamar onEnter si existe
         if (this.paginaActual.onEnter) {
             this.paginaActual.onEnter();
         }
@@ -50,11 +66,16 @@ class Navegador {
         if (i >= 0 && i < this.paginas.length) {
             this.incidePagina = i;
             this.paginaActual = this.paginas[i];
-            
+
             // Resetear configuraciones globales de p5.js
             this.resetearConfiguracionesGlobales();
-            
-            // Llamar onEnter si existe el método
+
+            // Llamar setup si existe
+            if (this.paginaActual.setup) {
+                this.paginaActual.setup();
+            }
+
+            // Llamar onEnter si existe
             if (this.paginaActual.onEnter) {
                 this.paginaActual.onEnter();
             }
@@ -78,6 +99,8 @@ class Navegador {
 
 class Pagina {
     constructor() { }
+    preload() { }
+    setup() { }
     draw() { }
     mousePressed() { }
     keyPressed() { }

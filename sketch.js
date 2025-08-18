@@ -7,9 +7,14 @@ let cabezaArribaImg;
 let cabezaAbajoImg;
 let frutaImg;
 let cuerpoImg;
-
-// Imagen del duplicador de puntaje
-let duplicadorImg;
+//variables imagenes galaga
+let imgs = [];
+//variables galaga
+let keys = [];
+let ship;
+let bullets = [];
+let aliens = [];
+let settings;
 
 let anuncios = []; //array con anuncios
 let indiceAnuncio = 0; // índice de la próxima imagen a mostrar
@@ -20,10 +25,7 @@ function preload() {
         let img = loadImage(`data/anuncios/a${i}.png`);
         anuncios.push(img);
     }
-    
-    // Cargar imagen del duplicador de puntaje
-    duplicadorImg = loadImage("data/anuncios/duplicador-puntaje.png");
-    
+
     // Cargar imágenes del Snake
     cabezaIzquierdaImg = loadImage("data/spasmic-snake-assets/img/cabeza_izquierda.png");
     cabezaDerechaImg = loadImage("data/spasmic-snake-assets/img/cabeza_derecha.png");
@@ -31,6 +33,11 @@ function preload() {
     cabezaAbajoImg = loadImage("data/spasmic-snake-assets/img/cabeza_abajo.png");
     frutaImg = loadImage("data/spasmic-snake-assets/img/fruta.png");
     cuerpoImg = loadImage("data/spasmic-snake-assets/img/cola.png");
+    //imagenes galaga
+    imgs.push(loadImage('data/galaga-assets/ship.png'));
+    imgs.push(loadImage('data/galaga-assets/alien0.png'));
+    imgs.push(loadImage('data/galaga-assets/alien1.png'));
+    imgs.push(loadImage('data/galaga-assets/alien2.png'));
 }
 
 function setup() {
@@ -45,6 +52,7 @@ function setup() {
     nav.agregarPagina(p);
     p = new Pagina03();
     nav.agregarPagina(p);
+
 }
 
 function draw() {
