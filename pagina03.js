@@ -16,6 +16,16 @@ let tiempoInicioAnuncio = 0; // Tiempo cuando empezó el anuncio
 let duracionAnuncio = 10000; // 10 segundos en milisegundos
 let frutaPendiente = false; // Si hay una fruta esperando a ser comida después del anuncio
 
+// Sistema de duplicador de puntaje
+let tiempoInicioJuego = 0; // Tiempo cuando empezó el juego
+let duplicadorVisible = false; // Si el duplicador está visible
+let posicionDuplicador = null; // Posición del duplicador
+duplicadorImg = null; // Imagen del duplicador (se carga globalmente)
+let tiempoUltimoDuplicador = 0; // Último tiempo que apareció un duplicador
+let intervaloDuplicador = 15000; // 30 segundos en milisegundos
+const anchoDuplicador = 70; // Ancho fijo del duplicador
+let altoDuplicador = 70; // Alto del duplicador (se calculará proporcionalmente)
+
 // Área de juego adaptada
 const margenIzquierdo = 10;
 const margenDerecho = 10;
@@ -29,7 +39,7 @@ const salto = 25; // tamaño de la celda y salto
 
 let verGrilla = false;
 
-let pausaMovimiento = 8; // frames para mover la serpiente (más rápido)
+let pausaMovimiento = 20; // frames para mover la serpiente (más rápido)
 
 // Textos
 let textoPuntos = "PUNTOS: ";
@@ -131,6 +141,15 @@ class Pagina03 extends Pagina {
             }
             
         } else if (!gameOver) {
+            // Verificar si debe aparecer el duplicador
+            if (gameStarted && !duplicadorVisible && !mostrandoOfertaAnuncio && !mostrandoAnuncio) {
+                let tiempoTranscurrido = millis() - tiempoInicioJuego;
+                if (tiempoTranscurrido - tiempoUltimoDuplicador >= intervaloDuplicador) {
+                    this.crearDuplicador();
+                    tiempoUltimoDuplicador = tiempoTranscurrido;
+                }
+            }
+
             // Aplicar próxima dirección
             if (proximaDireccion !== DIRECCIONES.DETENIDO) {
                 direccionCabeza = proximaDireccion;
@@ -164,6 +183,25 @@ class Pagina03 extends Pagina {
                 stroke(0);
                 ellipse(posicionFruta.x + salto/2, posicionFruta.y + salto/2, salto, salto);
                 pop();
+            }
+
+            // Dibujar duplicador si está visible
+            if (duplicadorVisible && posicionDuplicador) {
+                if (duplicadorImg && duplicadorImg.width > 0) {
+                    image(duplicadorImg, posicionDuplicador.x, posicionDuplicador.y, anchoDuplicador, altoDuplicador);
+                } else {
+                    // Fallback: rectángulo dorado para el duplicador
+                    push();
+                    fill(255, 215, 0); // Dorado
+                    stroke(255, 255, 0);
+                    strokeWeight(2);
+                    rect(posicionDuplicador.x, posicionDuplicador.y, anchoDuplicador, altoDuplicador);
+                    fill(0);
+                    textAlign(CENTER, CENTER);
+                    textSize(10);
+                    text("x2", posicionDuplicador.x + anchoDuplicador/2, posicionDuplicador.y + altoDuplicador/2);
+                    pop();
+                }
             }
 
             // Dibujar grilla si está activada
@@ -423,8 +461,13 @@ class Pagina03 extends Pagina {
                 frutaPendiente = true;
                 return;
             }
-        } else {
-            // Remover último segmento si no comió fruta
+        } 
+        // Verificar si tocó el duplicador
+        else if (duplicadorVisible && this.verificarColisionDuplicador()) {
+            this.activarDuplicador();
+        } 
+        else {
+            // Remover último segmento si no comió fruta ni tocó duplicador
             cuerpoSerpiente.shift();
         }
     }
@@ -483,6 +526,93 @@ class Pagina03 extends Pagina {
         return createVector(x, y);
     }
 
+    crearDuplicador() {
+        if (!duplicadorImg) return; // No crear si no está cargada la imagen
+        
+        let intentos = 0;
+        const maxIntentos = 50;
+        let x, y;
+
+        // Calcular alto proporcionalmente
+        if (duplicadorImg.width > 0) {
+            let aspectRatio = duplicadorImg.height / duplicadorImg.width;
+            altoDuplicador = anchoDuplicador * aspectRatio;
+        }
+
+        do {
+            // Generar posición aleatoria dentro del área de juego
+            x = random(areaX, areaX + areaAncho - anchoDuplicador);
+            y = random(areaY, areaY + areaAlto - altoDuplicador);
+            intentos++;
+        } while (intentos < maxIntentos && (this.duplicadorColisionaConSerpiente(x, y) || this.duplicadorColisionaConFruta(x, y)));
+
+        posicionDuplicador = createVector(x, y);
+        duplicadorVisible = true;
+        
+        console.log('*** Duplicador creado en:', x, y);
+    }
+
+    duplicadorColisionaConSerpiente(x, y) {
+        // Verificar colisión con cabeza
+        if (this.rectanguloDentroDeRectangulo(x, y, anchoDuplicador, altoDuplicador, 
+                                              posicionCabeza.x, posicionCabeza.y, salto, salto)) {
+            return true;
+        }
+        
+        // Verificar colisión con cuerpo
+        for (let segmento of cuerpoSerpiente) {
+            if (this.rectanguloDentroDeRectangulo(x, y, anchoDuplicador, altoDuplicador,
+                                                  segmento.x, segmento.y, salto, salto)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    duplicadorColisionaConFruta(x, y) {
+        return this.rectanguloDentroDeRectangulo(x, y, anchoDuplicador, altoDuplicador,
+                                                posicionFruta.x, posicionFruta.y, salto, salto);
+    }
+
+    rectanguloDentroDeRectangulo(x1, y1, w1, h1, x2, y2, w2, h2) {
+        return !(x1 + w1 < x2 || x1 > x2 + w2 || y1 + h1 < y2 || y1 > y2 + h2);
+    }
+
+    verificarColisionDuplicador() {
+        if (!duplicadorVisible || !posicionDuplicador) return false;
+        
+        return this.rectanguloDentroDeRectangulo(
+            posicionCabeza.x, posicionCabeza.y, salto, salto,
+            posicionDuplicador.x, posicionDuplicador.y, anchoDuplicador, altoDuplicador
+        );
+    }
+
+    activarDuplicador() {
+        console.log('*** ¡Duplicador activado!');
+        
+        // Duplicar puntos
+        puntos = puntos * 2;
+        
+        // Duplicar tamaño de la serpiente (agregar segmentos igual al tamaño actual)
+        let longitudActual = cuerpoSerpiente.length;
+        for (let i = 0; i < longitudActual; i++) {
+            // Agregar segmento en la última posición del cuerpo
+            if (cuerpoSerpiente.length > 0) {
+                let ultimoSegmento = cuerpoSerpiente[cuerpoSerpiente.length - 1];
+                cuerpoSerpiente.push(createVector(ultimoSegmento.x, ultimoSegmento.y));
+            }
+        }
+        
+        // Duplicar velocidad (reducir pausa a la mitad, mínimo 1)
+        pausaMovimiento = Math.max(1, Math.floor(pausaMovimiento / 2));
+        
+        // Ocultar duplicador
+        duplicadorVisible = false;
+        posicionDuplicador = null;
+        
+        console.log(`*** Nuevos puntos: ${puntos}, Nueva velocidad: ${pausaMovimiento}, Longitud serpiente: ${cuerpoSerpiente.length + 1}`);
+    }
+
     inicializar() {
         puntos = 0;
         gameOver = false;
@@ -491,7 +621,7 @@ class Pagina03 extends Pagina {
         direccionAnterior = DIRECCIONES.DETENIDO;
         proximaDireccion = DIRECCIONES.DETENIDO;
         cuerpoSerpiente = [];
-        pausaMovimiento = 8;
+        pausaMovimiento = 20;
         
         // Resetear sistema de anuncios
         manzanasGratis = 3;
@@ -499,6 +629,12 @@ class Pagina03 extends Pagina {
         mostrandoAnuncio = false;
         anuncioActual = null;
         frutaPendiente = false;
+
+        // Resetear sistema de duplicador
+        tiempoInicioJuego = millis();
+        duplicadorVisible = false;
+        posicionDuplicador = null;
+        tiempoUltimoDuplicador = 0;
 
         // Posición cabeza en centro del área (alineada a la grilla)
         let celdasX = floor(areaAncho / salto);
@@ -590,6 +726,7 @@ class Pagina03 extends Pagina {
             if (nuevaDireccion !== direccionCabeza && nuevaDireccion !== DIRECCIONES.DETENIDO) {
                 if (!gameStarted) {
                     gameStarted = true;
+                    tiempoInicioJuego = millis(); // Inicializar tiempo de juego
                     direccionCabeza = nuevaDireccion;
                 } else {
                     proximaDireccion = nuevaDireccion;

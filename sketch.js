@@ -8,6 +8,9 @@ let cabezaAbajoImg;
 let frutaImg;
 let cuerpoImg;
 
+// Imagen del duplicador de puntaje
+let duplicadorImg;
+
 let anuncios = []; //array con anuncios
 let indiceAnuncio = 0; // índice de la próxima imagen a mostrar
 
@@ -17,6 +20,9 @@ function preload() {
         let img = loadImage(`data/anuncios/a${i}.png`);
         anuncios.push(img);
     }
+    
+    // Cargar imagen del duplicador de puntaje
+    duplicadorImg = loadImage("data/anuncios/duplicador-puntaje.png");
     
     // Cargar imágenes del Snake
     cabezaIzquierdaImg = loadImage("data/spasmic-snake-assets/img/cabeza_izquierda.png");
