@@ -7,6 +7,9 @@ let cabezaArribaImg;
 let cabezaAbajoImg;
 let frutaImg;
 let cuerpoImg;
+// Imagen del duplicador de puntaje del snake
+let duplicadorImg;
+
 //variables imagenes galaga
 let imgs = [];
 //variables galaga
@@ -33,6 +36,9 @@ function preload() {
     cabezaAbajoImg = loadImage("data/spasmic-snake-assets/img/cabeza_abajo.png");
     frutaImg = loadImage("data/spasmic-snake-assets/img/fruta.png");
     cuerpoImg = loadImage("data/spasmic-snake-assets/img/cola.png");
+    // Cargar imagen del duplicador de puntaje del snake
+    duplicadorImg = loadImage("data/anuncios/duplicador-puntaje.png");
+
     //imagenes galaga
     imgs.push(loadImage('data/galaga-assets/ship.png'));
     imgs.push(loadImage('data/galaga-assets/alien0.png'));
