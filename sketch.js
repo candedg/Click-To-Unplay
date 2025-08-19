@@ -7,6 +7,17 @@ let cabezaArribaImg;
 let cabezaAbajoImg;
 let frutaImg;
 let cuerpoImg;
+// Imagen del duplicador de puntaje del snake
+let duplicadorImg;
+//variables sonidos del galaga
+let snakeComeSound; // Variable para el sonido de comer
+let snakeComeAnuncioSound; // Variable para el sonido de comer anuncio
+let snakeDuplicadorSound; // Variable para el sonido del duplicador
+let snakePierdeSound; // Variable para el sonido de perder
+
+// SONIDOS DE PAGINA01 
+let spawnAnuncioSound; // Variable para el sonido de aparecer anuncio
+
 //variables imagenes galaga
 let imgs = [];
 //variables galaga
@@ -33,11 +44,22 @@ function preload() {
     cabezaAbajoImg = loadImage("data/spasmic-snake-assets/img/cabeza_abajo.png");
     frutaImg = loadImage("data/spasmic-snake-assets/img/fruta.png");
     cuerpoImg = loadImage("data/spasmic-snake-assets/img/cola.png");
+    // Cargar imagen del duplicador de puntaje del snake
+    duplicadorImg = loadImage("data/anuncios/duplicador-puntaje.png");
+    //Cargar sonidos del snake
+    snakeComeSound = loadSound("data/spasmic-snake-assets/sounds/snake-come.mp3");
+    snakeComeAnuncioSound = loadSound("data/spasmic-snake-assets/sounds/snake-come-anuncio.mp3");
+    snakeDuplicadorSound = loadSound("data/spasmic-snake-assets/sounds/snake-duplicador.mp3");
+    snakePierdeSound = loadSound("data/spasmic-snake-assets/sounds/snake-pierde.mp3");
+
     //imagenes galaga
     imgs.push(loadImage('data/galaga-assets/ship.png'));
     imgs.push(loadImage('data/galaga-assets/alien0.png'));
     imgs.push(loadImage('data/galaga-assets/alien1.png'));
     imgs.push(loadImage('data/galaga-assets/alien2.png'));
+
+    // CARGAR SONIDO DE PAGINA01
+    spawnAnuncioSound = loadSound("data/anuncios/spawn-anuncio.mp3");
 }
 
 function setup() {

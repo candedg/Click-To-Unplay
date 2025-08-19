@@ -134,6 +134,11 @@ class Pagina01 extends Pagina {
     }
 
     crearAnuncio() {
+        // REPRODUCIR SONIDO AL CREAR ANUNCIO
+        if (spawnAnuncioSound && spawnAnuncioSound.isLoaded()) {
+            spawnAnuncioSound.play();
+        }
+
         let x, y;
         let intentos = 0;
         const maxIntentos = 50;
