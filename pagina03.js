@@ -378,10 +378,15 @@ class Pagina03 extends Pagina {
     }
 
     comerFruta() {
+        // NUEVO: Reproducir sonido cuando come fruta
+        if (snakeComeSound && snakeComeSound.isLoaded()) {
+            snakeComeSound.play();
+        }
+
         puntos++;
-        contadorManzanas++; // CORREGIDO: incrementar contador aquí
+        contadorManzanas++;
         console.log("Manzanas comidas:", contadorManzanas);
-        
+
         this.generarNuevaFruta();
         // Aumentar velocidad gradualmente
         if (puntos % 5 === 0 && pausaMovimiento > 3) {
@@ -389,13 +394,26 @@ class Pagina03 extends Pagina {
         }
     }
 
-    // NUEVO MÉTODO: comer anuncio especial
+    //comer anuncio especial
     comerAnuncioEspecial() {
         console.log("¡Anuncio especial comido!");
-        
+
+        // NUEVO: Reproducir sonido base cuando come
+        if (snakeComeSound && snakeComeSound.isLoaded()) {
+            snakeComeSound.play();
+
+            // Reproducir sonido adicional de anuncio después del sonido base
+            if (snakeComeAnuncioSound && snakeComeAnuncioSound.isLoaded()) {
+                // Usar setTimeout para reproducir el segundo sonido después del primero
+                setTimeout(() => {
+                    snakeComeAnuncioSound.play();
+                }, 300); // Esperar 300ms antes de reproducir el segundo sonido
+            }
+        }
+
         // Añadir 4 puntos (en lugar de 1 como la fruta normal)
         puntos += 4;
-        
+
         // Añadir 4 segmentos al cuerpo
         for (let i = 0; i < 4; i++) {
             if (cuerpoSerpiente.length > 0) {
@@ -406,21 +424,22 @@ class Pagina03 extends Pagina {
                 cuerpoSerpiente.push(createVector(posicionCabeza.x, posicionCabeza.y));
             }
         }
-        
+
         // Mostrar anuncio grande
         this.activarAnuncioEspecial();
-        
+
         // Resetear el sistema para las próximas 5 manzanas normales
         contadorManzanas = 0;
         anuncioEspecialActivo = false;
         posicionAnuncioEspecial = null;
         imagenAnuncioEspecial = null;
-        
+
         // Generar nueva fruta normal
         this.generarNuevaFruta();
-        
+
         console.log(`Puntos después del anuncio especial: ${puntos}, Segmentos: ${cuerpoSerpiente.length}`);
     }
+
 
     calcularAreaJuego() {
         areaX = margenIzquierdo;
@@ -506,8 +525,13 @@ class Pagina03 extends Pagina {
                 break;
         }
 
-        // Verificar colisiones
+        // VERIFICAR COLISIONES Y REPRODUCIR SONIDO AL PERDER
         if (this.verificarColisionBordes() || this.verificarColisionCuerpo()) {
+            // Reproducir sonido cuando pierde (toca pared o su propio cuerpo)
+            if (snakePierdeSound && snakePierdeSound.isLoaded()) {
+                snakePierdeSound.play();
+            }
+
             gameOver = true;
             return;
         }
@@ -556,20 +580,19 @@ class Pagina03 extends Pagina {
         }
         return false;
     }
-
     // CORREGIDO: verificar colisión con anuncio especial
     verificarColisionAnuncioEspecial() {
         if (!anuncioEspecialActivo || !posicionAnuncioEspecial) return false;
-        
+
         // El anuncio especial es más pequeño (30x30) pero la colisión debe funcionar igual
-        return (posicionCabeza.x === posicionAnuncioEspecial.x && 
-                posicionCabeza.y === posicionAnuncioEspecial.y);
+        return (posicionCabeza.x === posicionAnuncioEspecial.x &&
+            posicionCabeza.y === posicionAnuncioEspecial.y);
     }
 
     // CORREGIDO: generar nueva fruta o anuncio especial
     generarNuevaFruta() {
         console.log("Generando nueva fruta. Contador:", contadorManzanas);
-        
+
         // Verificar si debe aparecer anuncio especial (cada 5 manzanas)
         if (contadorManzanas > 0 && contadorManzanas % 5 === 0) {
             console.log("¡Debe aparecer anuncio especial!");
@@ -590,18 +613,18 @@ class Pagina03 extends Pagina {
     generarAnuncioEspecial() {
         console.log("Generando anuncio especial");
         anuncioEspecialActivo = true;
-        
+
         // Seleccionar imagen aleatoria para el anuncio especial
         let indiceAleatorio = floor(random(anuncios.length));
         imagenAnuncioEspecial = anuncios[indiceAleatorio];
-        
+
         // Generar posición aleatoria (alineada a la grilla como las frutas normales)
         let intentos = 0;
         do {
             posicionAnuncioEspecial = this.posicionFrutaAleatoria();
             intentos++;
         } while (this.anuncioEspecialEnSerpiente() && intentos < 100);
-        
+
         console.log("Anuncio especial generado en:", posicionAnuncioEspecial.x, posicionAnuncioEspecial.y);
     }
 
@@ -713,6 +736,18 @@ class Pagina03 extends Pagina {
     activarDuplicador() {
         console.log('*** ¡Duplicador activado!');
 
+        // NUEVO: Reproducir sonido base cuando toca el duplicador
+        if (snakeComeSound && snakeComeSound.isLoaded()) {
+            snakeComeSound.play();
+
+            // Reproducir sonido específico del duplicador después del sonido base
+            if (snakeDuplicadorSound && snakeDuplicadorSound.isLoaded()) {
+                setTimeout(() => {
+                    snakeDuplicadorSound.play();
+                }, 300); // Esperar 300ms antes de reproducir el sonido del duplicador
+            }
+        }
+
         // Duplicar puntos
         puntos = puntos * 2;
 
@@ -744,7 +779,7 @@ class Pagina03 extends Pagina {
 
         // Usar la misma imagen del anuncio especial pequeño para el grande
         anuncioActual = imagenAnuncioEspecial;
-        
+
         console.log("Mostrando anuncio especial grande");
     }
 
@@ -808,6 +843,12 @@ class Pagina03 extends Pagina {
             // Click en botón NO
             else if (mouseX >= botonNoX && mouseX <= botonNoX + botonAncho &&
                 mouseY >= botonesY && mouseY <= botonesY + botonAlto) {
+
+                // NUEVO: Reproducir sonido al rechazar anuncio y perder
+                if (snakePierdeSound && snakePierdeSound.isLoaded()) {
+                    snakePierdeSound.play();
+                }
+
                 // Terminar juego
                 gameOver = true;
                 mostrandoOfertaAnuncio = false;
