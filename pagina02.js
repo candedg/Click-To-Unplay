@@ -8,7 +8,7 @@ let mostrandoAnuncioGalaga = false;
 let anuncioActualGalaga = null;
 let tiempoInicioAnuncioGalaga = 0;
 let anunciosVistosGalaga = 0;
-let duracionAnuncioGalaga = 2000; // 15s
+let duracionAnuncioGalaga = 15000; // 15s
 let anunciosNecesariosGalaga = 1;  // 1 anuncio por recompensa
 
 // otras variables (alias cañones maximos y cartel cañones maximos)
