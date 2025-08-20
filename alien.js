@@ -31,7 +31,7 @@ function Alien(x, y) {
     }
 
     if (this.y >= height) {
-      this.y = -40;
+      this.y = -20;
     }
   }
 

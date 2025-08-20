@@ -20,6 +20,7 @@ let spawnAnuncioSound; // Variable para el sonido de aparecer anuncio
 
 //variables imagenes galaga
 let imgs = [];
+let recompensaImg
 //variables galaga
 let keys = [];
 let ship;
@@ -57,6 +58,7 @@ function preload() {
     imgs.push(loadImage('data/galaga-assets/alien0.png'));
     imgs.push(loadImage('data/galaga-assets/alien1.png'));
     imgs.push(loadImage('data/galaga-assets/alien2.png'));
+    recompensaImg=loadImage('data/galaga-assets/recompensa.png')
 
     // CARGAR SONIDO DE PAGINA01
     spawnAnuncioSound = loadSound("data/anuncios/spawn-anuncio.mp3");
