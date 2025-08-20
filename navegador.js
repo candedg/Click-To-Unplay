@@ -9,7 +9,17 @@ class Navegador {
         this.paginas.push(p);
         if (!this.paginaActual) {
             this.incidePagina = 0;
-            this.paginaActual = p
+            this.paginaActual = p;
+
+            // Llamar setup si existe
+            if (this.paginaActual.setup) {
+                this.paginaActual.setup();
+            }
+
+            // Llamar onEnter si existe
+            if (this.paginaActual.onEnter) {
+                this.paginaActual.onEnter();
+            }
         }
     }
 
@@ -17,6 +27,19 @@ class Navegador {
         let i = (this.incidePagina + 1) % this.paginas.length;
         this.incidePagina = i;
         this.paginaActual = this.paginas[i];
+
+        // Resetear configuraciones globales de p5.js
+        this.resetearConfiguracionesGlobales();
+
+        // Llamar setup si existe
+        if (this.paginaActual.setup) {
+            this.paginaActual.setup();
+        }
+
+        // Llamar onEnter si existe
+        if (this.paginaActual.onEnter) {
+            this.paginaActual.onEnter();
+        }
     }
 
     previaPagina() {
@@ -24,21 +47,62 @@ class Navegador {
         if (i < 0) { i = this.paginas.length - 1 }
         this.incidePagina = i;
         this.paginaActual = this.paginas[i];
+
+        // Resetear configuraciones globales de p5.js
+        this.resetearConfiguracionesGlobales();
+
+        // Llamar setup si existe
+        if (this.paginaActual.setup) {
+            this.paginaActual.setup();
+        }
+
+        // Llamar onEnter si existe
+        if (this.paginaActual.onEnter) {
+            this.paginaActual.onEnter();
+        }
     }
 
     seleccionarPagina(i) {
         if (i >= 0 && i < this.paginas.length) {
             this.incidePagina = i;
             this.paginaActual = this.paginas[i];
+
+            // Resetear configuraciones globales de p5.js
+            this.resetearConfiguracionesGlobales();
+
+            // Llamar setup si existe
+            if (this.paginaActual.setup) {
+                this.paginaActual.setup();
+            }
+
+            // Llamar onEnter si existe
+            if (this.paginaActual.onEnter) {
+                this.paginaActual.onEnter();
+            }
         } else {
-            print('*** Error: indice de pagina fuera de rango');
+            console.log('*** Error: indice de pagina fuera de rango');
         }
+    }
+
+    resetearConfiguracionesGlobales() {
+        // Resetear todas las configuraciones de p5.js a sus valores por defecto
+        textAlign(LEFT, BASELINE);
+        textSize(12);
+        noStroke();
+        fill(0);
+        rectMode(CORNER);
+        imageMode(CORNER);
+        textWrap(WORD);
+        strokeWeight(1);
     }
 }
 
 class Pagina {
     constructor() { }
+    preload() { }
+    setup() { }
     draw() { }
     mousePressed() { }
     keyPressed() { }
+    onEnter() { } // Método opcional que se llama al entrar a la página
 }
