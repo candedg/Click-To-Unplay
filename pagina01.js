@@ -7,11 +7,26 @@ class Pagina01 extends Pagina {
     constructor() {
         super();
         // La imagen img1 ya se carga globalmente en sketch.js
+
+        //Variable de la música de fondo
+        this.musica01 = false;
     }
 
     draw() {
         push(); // Guardar estado gráfico
         background(0, 255, 0);
+
+        // Reproduce música en loop
+        if (!this.musica01) {
+            this.musica01 = true;
+            pagina01Sound.setVolume(0.2);
+            pagina01Sound.loop();
+        }
+
+        // Título grande centrado arriba
+        push();
+        textAlign(CENTER, TOP);
+        textSize(width / 8);
 
         // Título grande centrado arriba
         push();
@@ -21,6 +36,7 @@ class Pagina01 extends Pagina {
         stroke(148, 0, 211);
         strokeWeight(10);
         fill(255, 0, 0);
+        textFont(fuenteTitulo);
         text('Click to', width / 2, height / 15);
         text('Unplay', width / 2, height / 5);
         pop();
@@ -37,6 +53,11 @@ class Pagina01 extends Pagina {
         // Texto "!COMENZAR" dentro del botón falso
         push();
         textAlign(CENTER, CENTER);
+        textSize(width / 19);
+        noStroke();
+        fill(0, 0, 255);
+        textFont(fuenteTexto);
+        text('!COMENZAR', width / 2, height / 2);
         textSize(width / 15);
         noStroke();
         fill(0, 0, 255);
@@ -110,6 +131,8 @@ class Pagina01 extends Pagina {
             rectMode(CORNER);
             imageMode(CORNER);
 
+            pagina01Sound.stop();
+            this.musica01 = false;
             nav.siguientePagina();
 
         } else if (mouseX >= botonFalsoX1 && mouseX <= botonFalsoX2 &&

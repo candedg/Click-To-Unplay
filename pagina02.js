@@ -18,9 +18,22 @@ let mostrandoCartelMaximo = false;
 let cantidad = 5;           // cantidad inicial de aliens por oleada
 
 class Pagina02 extends Pagina {
+    constructor() {
+        super();
+        //Variable de la música de fondo
+        this.musica02= false;
+    }
+    
     setup() {
         createCanvas(width, height);
         noStroke();
+
+        // Reproduce música en loop
+        if (!this.musica02) {
+            this.musica02 = true;
+            pagina02Sound.setVolume(0.2);
+            pagina02Sound.loop();
+        }
 
         // parámetros ajustables 
         this.maxAliens = 5;   // cantidad máxima inicial
@@ -51,6 +64,11 @@ class Pagina02 extends Pagina {
         // Título 
         push();
         textAlign(CENTER, TOP);
+        textSize(width / 8);
+        stroke(148, 0, 211);
+        strokeWeight(10);
+        fill(0, 255, 0);
+        textFont(fuenteTitulo);
         textSize(width / 5);
         stroke(148, 0, 211);
         strokeWeight(10);
@@ -309,6 +327,8 @@ class Pagina02 extends Pagina {
 
         if (!mostrandoAnuncioGalaga) {
             print('*** Pasa al segundo juego, Spaspic Snake');
+            pagina02Sound.stop();
+            this.musica02 = false;
             nav.siguientePagina();
         }
     }
