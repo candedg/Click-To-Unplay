@@ -14,16 +14,16 @@ let anunciosNecesariosGalaga = 1;  // 1 anuncio por recompensa
 // otras variables (alias cañones maximos y cartel cañones maximos)
 let alias = "arbia.com.ar"; // alias para transferir
 let maxCanonesGratis = 5;   // MÁXIMO TOTAL de cañones (incluye el base)
-let mostrandoCartelMaximo = false; 
+let mostrandoCartelMaximo = false;
 let cantidad = 5;           // cantidad inicial de aliens por oleada
 
 class Pagina02 extends Pagina {
     constructor() {
         super();
         //Variable de la música de fondo
-        this.musica02= false;
+        this.musica02 = false;
     }
-    
+
     setup() {
         createCanvas(width, height);
         noStroke();
@@ -47,6 +47,12 @@ class Pagina02 extends Pagina {
         ship = new Ship();
 
         // reset estado galaga
+        this.resetearEstadoGalaga();
+    }
+
+    resetearEstadoGalaga() {
+        // Reset completo del estado del juego Galaga
+        galagaGameOver = false;
         recompensas = [];
         mostrandoCartelRecompensaGalaga = false;
         recompensasObtenidasGalaga = 0;
@@ -54,6 +60,23 @@ class Pagina02 extends Pagina {
         anuncioActualGalaga = null;
         anunciosVistosGalaga = 0;
         mostrandoCartelMaximo = false;
+        cantidad = 5; // resetear cantidad inicial
+
+        // Limpiar arrays globales
+        bullets = [];
+        aliens = [];
+
+        // Reinicializar nave
+        ship = new Ship();
+
+        // Reset parámetros del juego
+        this.maxAliens = 5;
+        this.alienEvery = 700;
+        this.shotDelay = 150;
+        this._lastAlien = 0;
+        this._lastShot = 0;
+
+        console.log('*** Estado Galaga reseteado completamente');
     }
 
     draw() {
@@ -80,9 +103,10 @@ class Pagina02 extends Pagina {
             fill(255, 0, 0);
             textAlign(CENTER, CENTER);
             textSize(32);
-            text("¡PERDISTE!", width / 2, height / 2 - 20);
+            text("¡PERDISTE!", width / 2, height / 2 - 40);
             textSize(20);
-            text("Presiona ESPACIO para volver a empezar", width / 2, height / 2 + 20);
+            text("Presiona ESPACIO para volver a empezar", width / 2, height / 2 + 10);
+            text("o ESC para pasar al siguiente juego", width / 2, height / 2 + 40);
             pop();
             return;
         }
@@ -259,7 +283,7 @@ class Pagina02 extends Pagina {
         let indiceAleatorio = floor(random(anuncios.length));
         anuncioActualGalaga = anuncios[indiceAleatorio];
 
-        contadorAnuncios2 ++;
+        contadorAnuncios2++;
     }
 
     terminarAnuncioGalaga() {
@@ -288,22 +312,29 @@ class Pagina02 extends Pagina {
 
     // teclas
     keyPressed() {
-        if (galagaGameOver && keyCode === 32) {
-            galagaGameOver = false;
-            aliens = [];
-            bullets = [];
-            ship = new Ship();
-            recompensas = [];
-            recompensasObtenidasGalaga = 0;
-            anunciosVistosGalaga = 0;
-            mostrandoCartelRecompensaGalaga = false;
-            mostrandoAnuncioGalaga = false;
-            mostrandoCartelMaximo = false;
-            this.maxAliens = 3; // reset
-            cantidad = 3;       // reset
-            sonidoRevive.play()
-        }
+    if (galagaGameOver && keyCode === 32) { // ESPACIO - reiniciar juego
+        galagaGameOver = false;
+        aliens = [];
+        bullets = [];
+        ship = new Ship();
+        recompensas = [];
+        recompensasObtenidasGalaga = 0;
+        anunciosVistosGalaga = 0;
+        mostrandoCartelRecompensaGalaga = false;
+        mostrandoAnuncioGalaga = false;
+        mostrandoCartelMaximo = false;
+        this.maxAliens = 3; // reset
+        cantidad = 3;       // reset
+        sonidoRevive.play()
     }
+    
+    if (galagaGameOver && keyCode === ESCAPE) { // ESC - pasar al siguiente juego
+        console.log('*** Pasando al siguiente juego desde Game Over');
+        pagina02Sound.stop();
+        this.musica02 = false;
+        nav.siguientePagina();
+    }
+}
 
     mousePressed() {
         if (mostrandoCartelRecompensaGalaga) {
@@ -332,6 +363,31 @@ class Pagina02 extends Pagina {
             this.musica02 = false;
             nav.siguientePagina();
         }
+    }
+
+    onEnter() {
+        // Configuraciones gráficas al entrar
+        textAlign(LEFT, BASELINE);
+        textSize(12);
+        noStroke();
+        fill(0);
+        rectMode(CORNER);
+        imageMode(CORNER);
+
+        console.log('*** Entrando a Galaga - Juego reseteado');
+    }
+
+    onExit() {
+        // Detener música y resetear estado al salir
+        if (pagina02Sound && pagina02Sound.isPlaying()) {
+            pagina02Sound.stop();
+        }
+        this.musica02 = false;
+
+        // Resetear completamente el juego cuando se sale de la página
+        this.resetearEstadoGalaga();
+
+        console.log('*** Saliendo de Galaga - Estado limpiado');
     }
 }
 

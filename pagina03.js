@@ -81,7 +81,53 @@ class Pagina03 extends Pagina {
     constructor() {
         super();
         //Variable de la música de fondo
-        this.musica03= false;
+        this.musica03 = false;
+    }
+
+    // NUEVO MÉTODO: resetear completamente el estado del Snake
+    resetearEstadoSnake() {
+        console.log('*** Reseteando estado completo del Snake');
+
+        // Reset de variables del juego
+        puntos = 0;
+        gameOver = false;
+        gameStarted = false;
+
+        // Reset de direcciones
+        direccionCabeza = DIRECCIONES.DETENIDO;
+        direccionAnterior = DIRECCIONES.DETENIDO;
+        proximaDireccion = DIRECCIONES.DETENIDO;
+
+        // Reset del cuerpo
+        cuerpoSerpiente = [];
+
+        // Reset de velocidad
+        pausaMovimiento = 15;
+
+        // Reset del sistema de anuncios
+        manzanasGratis = 3;
+        mostrandoOfertaAnuncio = false;
+        mostrandoAnuncio = false;
+        anuncioActual = null;
+        frutaPendiente = false;
+
+        // Reset del sistema de anuncios especiales
+        contadorManzanas = 0;
+        anuncioEspecialActivo = false;
+        posicionAnuncioEspecial = null;
+        imagenAnuncioEspecial = null;
+
+        // Reset del sistema de duplicador
+        tiempoInicioJuego = 0;
+        duplicadorVisible = false;
+        posicionDuplicador = null;
+        tiempoUltimoDuplicador = 0;
+
+        // Reset de otras variables
+        verGrilla = false;
+        juegoInicializado = false;
+
+        console.log('*** Estado Snake reseteado completamente');
     }
 
     draw() {
@@ -876,11 +922,7 @@ class Pagina03 extends Pagina {
             }
         }
 
-        if (!mostrandoAnuncio) {
-            pagina03Sound.stop();
-            this.musica03 = false;
-            nav.siguientePagina();
-        }
+       
     }
 
     iniciarAnuncio() {
@@ -894,7 +936,7 @@ class Pagina03 extends Pagina {
 
         console.log(`Mostrando anuncio: ${indiceAleatorio + 1}`);
 
-        contadorAnuncios3 ++;
+        contadorAnuncios3++;
     }
 
     keyPressed() {
@@ -978,6 +1020,21 @@ class Pagina03 extends Pagina {
         fill(0);
         rectMode(CORNER);
         imageMode(CORNER);
+
+        console.log('*** Entrando a Snake - Juego reseteado');
+    }
+
+    onExit() {
+        // Detener música y resetear estado al salir
+        if (pagina03Sound && pagina03Sound.isPlaying()) {
+            pagina03Sound.stop();
+        }
+        this.musica03 = false;
+
+        // Resetear completamente el juego cuando se sale de la página
+        this.resetearEstadoSnake();
+
+        console.log('*** Saliendo de Snake - Estado limpiado');
     }
 }
 

@@ -24,6 +24,11 @@ class Navegador {
     }
 
     siguientePagina() {
+        // Llamar onExit de la página actual antes de cambiar
+        if (this.paginaActual && this.paginaActual.onExit) {
+            this.paginaActual.onExit();
+        }
+
         let i = (this.incidePagina + 1) % this.paginas.length;
         this.incidePagina = i;
         this.paginaActual = this.paginas[i];
@@ -43,6 +48,11 @@ class Navegador {
     }
 
     previaPagina() {
+        // Llamar onExit de la página actual antes de cambiar
+        if (this.paginaActual && this.paginaActual.onExit) {
+            this.paginaActual.onExit();
+        }
+
         let i = (this.incidePagina - 1) % this.paginas.length;
         if (i < 0) { i = this.paginas.length - 1 }
         this.incidePagina = i;
@@ -64,6 +74,11 @@ class Navegador {
 
     seleccionarPagina(i) {
         if (i >= 0 && i < this.paginas.length) {
+            // Llamar onExit de la página actual antes de cambiar
+            if (this.paginaActual && this.paginaActual.onExit) {
+                this.paginaActual.onExit();
+            }
+
             this.incidePagina = i;
             this.paginaActual = this.paginas[i];
 
@@ -105,4 +120,5 @@ class Pagina {
     mousePressed() { }
     keyPressed() { }
     onEnter() { } // Método opcional que se llama al entrar a la página
+    onExit() { }  // Método opcional que se llama al salir de la página
 }
