@@ -1,5 +1,6 @@
 let nav = new Navegador();
 
+
 // Variable para la tipografía
 let fuenteTitulo;
 let fuenteTexto;
@@ -8,6 +9,7 @@ let fuenteTexto;
 let pagina01Sound;
 let pagina02Sound;
 let pagina03Sound;
+
 
 // Variables globales para las imágenes del Snake
 let cabezaIzquierdaImg;
@@ -47,6 +49,7 @@ function preload() {
         anuncios.push(img);
     }
 
+
     // Cargar tipografías
     fuenteTitulo = loadFont("data/fonts/zephyr_jubilee.ttf");
     fuenteTexto = loadFont("data/fonts/Neuropol.otf");
@@ -55,6 +58,7 @@ function preload() {
     pagina01Sound = loadSound("data/musica/musica inicio.mp3");
     pagina02Sound = loadSound("data/musica/musica galaga.mp3");
     pagina03Sound = loadSound("data/musica/musica snake.mp3");
+
 
     // Cargar imágenes del Snake
     cabezaIzquierdaImg = loadImage("data/spasmic-snake-assets/img/cabeza_izquierda.png");
@@ -94,8 +98,10 @@ function setup() {
     nav.agregarPagina(p);
     p = new Pagina03();
     nav.agregarPagina(p);
+
     p = new Pagina04();
     nav.agregarPagina(p);
+
 
 }
 

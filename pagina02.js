@@ -69,6 +69,10 @@ class Pagina02 extends Pagina {
         strokeWeight(10);
         fill(0, 255, 0);
         textFont(fuenteTitulo);
+        textSize(width / 5);
+        stroke(148, 0, 211);
+        strokeWeight(10);
+        fill(0, 255, 0);
         text('Galaga', width / 2, height / 20);
         text('Glitch', width / 2, height / 20 + width / 5);
         pop();
