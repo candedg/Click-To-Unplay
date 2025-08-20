@@ -24,6 +24,7 @@ function Bullet(x, y) {
           // Matar alien y eliminar bala
           b.x = width * 2;
           aliens.splice(i, 1);
+          muereAlien.play()
         }
       }
     }

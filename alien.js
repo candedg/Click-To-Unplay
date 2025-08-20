@@ -39,6 +39,7 @@ function Alien(x, y) {
     if (this.x >= ship.x - ship.s / 1.5 && this.x <= ship.x + ship.s / 1.5) {
       if (this.y >= ship.y - ship.s / 2) {
         galagaGameOver= true;
+        muerteNave.play()
       }
     }
   }

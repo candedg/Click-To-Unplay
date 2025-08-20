@@ -27,11 +27,6 @@ class Pagina01 extends Pagina {
         push();
         textAlign(CENTER, TOP);
         textSize(width / 8);
-
-        // Título grande centrado arriba
-        push();
-        textAlign(CENTER, TOP);
-        textSize(width / 5);
         textWrap(WORD);
         stroke(148, 0, 211);
         strokeWeight(10);
@@ -58,10 +53,6 @@ class Pagina01 extends Pagina {
         fill(0, 0, 255);
         textFont(fuenteTexto);
         text('!COMENZAR', width / 2, height / 2);
-        textSize(width / 15);
-        noStroke();
-        fill(0, 0, 255);
-        text('!COMENZAR', width / 2, height / 2 + 5);
         pop();
 
         // Texto "Inicio" real, discreto en la parte inferior central
@@ -133,6 +124,7 @@ class Pagina01 extends Pagina {
 
             pagina01Sound.stop();
             this.musica01 = false;
+            finTiempo = millis();
             nav.siguientePagina();
 
         } else if (mouseX >= botonFalsoX1 && mouseX <= botonFalsoX2 &&
@@ -141,6 +133,7 @@ class Pagina01 extends Pagina {
             console.log('*** Click en botón falso - aparece anuncio');
             if (!primerAnuncio) {
                 primerAnuncio = true;
+                comienzaTiempo = millis();
             }
             this.crearAnuncio();
 

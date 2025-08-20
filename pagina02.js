@@ -69,10 +69,6 @@ class Pagina02 extends Pagina {
         strokeWeight(10);
         fill(0, 255, 0);
         textFont(fuenteTitulo);
-        textSize(width / 5);
-        stroke(148, 0, 211);
-        strokeWeight(10);
-        fill(0, 255, 0);
         text('Galaga', width / 2, height / 20);
         text('Glitch', width / 2, height / 20 + width / 5);
         pop();
@@ -105,7 +101,7 @@ class Pagina02 extends Pagina {
                     const ay = -20;
                     aliens.push(new Alien(ax, ay));
 
-                    if (Math.floor(random(1, 25)) == 1) {
+                    if (Math.floor(random(1, 20)) == 1) {
                         recompensas.push(new Recompensa(ax, ay));
                     }
                 }
@@ -149,6 +145,7 @@ class Pagina02 extends Pagina {
             if (recompensas[i].checkCollision()) {
                 recompensas.splice(i, 1);
                 mostrandoCartelRecompensaGalaga = true;
+                recompensaGalaga.play()
             }
         }
     }
@@ -168,6 +165,7 @@ class Pagina02 extends Pagina {
         for (let dx of offsets) {
             bullets.push(new Bullet(ship.x + dx, ship.y));
         }
+        sonidoBala.play()
     }
 
     // cartel recompensa
@@ -260,6 +258,8 @@ class Pagina02 extends Pagina {
 
         let indiceAleatorio = floor(random(anuncios.length));
         anuncioActualGalaga = anuncios[indiceAleatorio];
+
+        contadorAnuncios2 ++;
     }
 
     terminarAnuncioGalaga() {
@@ -301,6 +301,7 @@ class Pagina02 extends Pagina {
             mostrandoCartelMaximo = false;
             this.maxAliens = 3; // reset
             cantidad = 3;       // reset
+            sonidoRevive.play()
         }
     }
 
