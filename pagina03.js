@@ -55,6 +55,11 @@ let textoInicio = "Presiona cualquier flecha para comenzar";
 let posicionTextoPuntos;
 let posicionTextoGameOver;
 
+anunciosClick = []; // anuncios acumulados por clics en barra
+contadorClicksNav = { galaga: 0, snake: 0 };
+CLICKS_PARA_ACCION = 10;
+
+
 // Las imágenes se cargan globalmente en sketch.js:
 // cabezaIzquierdaImg, cabezaDerechaImg, cabezaArribaImg, cabezaAbajoImg, frutaImg, cuerpoImg
 
@@ -86,7 +91,8 @@ class Pagina03 extends Pagina {
 
     // NUEVO MÉTODO: resetear completamente el estado del Snake
     resetearEstadoSnake() {
-
+        // limpiar anuncios acumulados
+        anunciosClick = [];
         // Reset de variables del juego
         puntos = 0;
         gameOver = false;
@@ -325,6 +331,9 @@ class Pagina03 extends Pagina {
 
         // Dibujar botones de selección de juego en la parte inferior
         this.dibujarBotonesSeleccion();
+
+        this.dibujarAnunciosClick();
+
     }
 
     dibujarBotonesSeleccion() {
@@ -884,7 +893,7 @@ class Pagina03 extends Pagina {
 
         // Usar la misma imagen del anuncio especial pequeño para el grande
         anuncioActual = imagenAnuncioEspecial;
-
+        totalAnuncios++; // contar anuncio global
     }
 
     inicializar() {
@@ -930,47 +939,112 @@ class Pagina03 extends Pagina {
     }
 
     mousePressed() {
+        // BLOQUEOS: si estamos en Game Over o mostrando anuncio fullscreen, no procesar clicks
+        if (gameOver || mostrandoAnuncio) {
+            return;
+        }
+
+        // Si está mostrando la oferta de anuncio, manejar clicks en botones SÍ/NO
+        if (mostrandoOfertaAnuncio) {
+            let mensajeX = areaX + 20;
+            let mensajeY = areaY + areaAlto / 2 - 80;
+            let mensajeAncho = areaAncho - 40;
+
+            let botonAncho = 80;
+            let botonAlto = 40;
+            let espacioBotones = 40;
+            let botonSiX = areaX + areaAncho / 2 - botonAncho - espacioBotones / 2;
+            let botonNoX = areaX + areaAncho / 2 + espacioBotones / 2;
+            let botonesY = mensajeY + 100;
+
+            // Verificar click en botón SÍ
+            if (mouseX >= botonSiX && mouseX <= botonSiX + botonAncho &&
+                mouseY >= botonesY && mouseY <= botonesY + botonAlto) {
+                this.iniciarAnuncio();
+                return;
+            }
+
+            // Verificar click en botón NO
+            if (mouseX >= botonNoX && mouseX <= botonNoX + botonAncho &&
+                mouseY >= botonesY && mouseY <= botonesY + botonAlto) {
+                mostrandoOfertaAnuncio = false;
+                gameOver = true;
+                return;
+            }
+
+            // Si está mostrando oferta, no procesar otros clicks
+            return;
+        }
+
+        // --- Manejo de botones de navegación (con anuncios) ---
         let franjaY = height - 50;
-        let botonAncho = 120;
-        let botonAlto = 35;
+        let botonAnchoNav = 120;
+        let botonAltoNav = 35;
         let espacioEntreBotones = 20;
 
-        let totalAnchoBotones = (botonAncho * 2) + espacioEntreBotones;
+        let totalAnchoBotones = (botonAnchoNav * 2) + espacioEntreBotones;
         let inicioX = (width - totalAnchoBotones) / 2;
 
         let botonGalagaX = inicioX;
-        let botonSnakeX = inicioX + botonAncho + espacioEntreBotones;
-        let botonesY = franjaY + (50 - botonAlto) / 2;
+        let botonSnakeX = inicioX + botonAnchoNav + espacioEntreBotones;
+        let botonesY = franjaY + (50 - botonAltoNav) / 2;
 
-        // Lógica para el botón GALAGA
-        if (mouseX >= botonGalagaX && mouseX <= botonGalagaX + botonAncho &&
-            mouseY >= botonesY && mouseY <= botonesY + botonAlto) {
+        // ¿Click en GALAGA?
+        if (mouseX >= botonGalagaX && mouseX <= botonGalagaX + botonAnchoNav &&
+            mouseY >= botonesY && mouseY <= botonesY + botonAltoNav) {
+
+            contadorClicksNav.galaga++;
+
+            if (contadorClicksNav.galaga % CLICKS_PARA_ACCION !== 0) {
+                this.crearAnuncioClick();
+                totalAnuncios++; // contar anuncio global por click en barra
+                return;
+            }
+
+            contadorClicksNav.galaga = 0;
             pagina03Sound.stop();
             this.musica03 = false;
-            nav.seleccionarPagina(1); // Página Galaga
+            nav.seleccionarPagina(1); // volver a Galaga
             return;
         }
 
-        // Lógica para el botón SNAKE (recargar la página actual)
-        if (mouseX >= botonSnakeX && mouseX <= botonSnakeX + botonAncho &&
-            mouseY >= botonesY && mouseY <= botonesY + botonAlto) {
-            // No es necesario detener la música, pero es buena práctica resetear el estado
-            this.resetearEstadoSnake();
+        // ¿Click en SNAKE?
+        if (mouseX >= botonSnakeX && mouseX <= botonSnakeX + botonAnchoNav &&
+            mouseY >= botonesY && mouseY <= botonesY + botonAltoNav) {
+
+            contadorClicksNav.snake++;
+
+            if (contadorClicksNav.snake % CLICKS_PARA_ACCION !== 0) {
+                this.crearAnuncioClick();
+                totalAnuncios++; // contar anuncio global por click en barra
+                return;
+            }
+
+            contadorClicksNav.snake = 0;
+            this.resetearEstadoSnake(); // reinicia Snake
             return;
         }
     }
+
+
     iniciarAnuncio() {
         mostrandoOfertaAnuncio = false;
         mostrandoAnuncio = true;
         tiempoInicioAnuncio = millis();
+        totalAnuncios++; // contar anuncio global
 
         // Seleccionar anuncio aleatorio
         let indiceAleatorio = floor(random(anuncios.length));
         anuncioActual = anuncios[indiceAleatorio];
 
+        // reproducir un sonido de spawn si existe
+        if (typeof spawnAnuncioSound !== "undefined" && spawnAnuncioSound) {
+            try { spawnAnuncioSound.play(); } catch (e) { }
+        }
 
-        contadorAnuncios3++;
+        // NOTA: se eliminó el contador undefined (contadorAnuncios3++) para evitar errores.
     }
+
 
     keyPressed() {
         // Si está mostrando anuncio, no permitir controles
@@ -1067,6 +1141,40 @@ class Pagina03 extends Pagina {
         this.resetearEstadoSnake();
 
     }
+
+    dibujarAnunciosClick() {
+        if (!anunciosClick.length) return;
+        push();
+        imageMode(CENTER);
+        noStroke();
+        for (let a of anunciosClick) {
+            if (a.img && a.img.width > 0) {
+                image(a.img, a.x, a.y, a.w, a.h);
+            } else {
+                fill(255, 0, 255, 200);
+                rect(a.x - a.w / 2, a.y - a.h / 2, a.w, a.h, 8);
+                fill(255);
+                textAlign(CENTER, CENTER);
+                textSize(14);
+                text('AD', a.x, a.y);
+            }
+        }
+        pop();
+    }
+
+    crearAnuncioClick() {
+        const img = anuncios[floor(random(anuncios.length))];
+        const w = random(width * 0.25, width * 0.55);
+        const h = w * (img && img.width > 0 ? img.height / img.width : random(0.6, 1.1));
+        const x = random(w / 2, width - w / 2);
+        const y = random(h / 2, height - h / 2);
+        anunciosClick.push({ img, x, y, w, h, rot: 0 });
+
+        if (typeof spawnAnuncioSound !== "undefined" && spawnAnuncioSound) {
+            try { spawnAnuncioSound.play(); } catch (e) { }
+        }
+    }
+
 }
 
 // Resetear el estado cuando se cambie de página

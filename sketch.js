@@ -9,11 +9,7 @@ let pagina01Sound;
 let pagina02Sound;
 let pagina03Sound;
 
-// Variable del contador de tiempo
-let comienzaTiempo;
-let finTiempo;
-let contadorAnuncios2 = 0;
-let contadorAnuncios3 = 0;
+let totalAnuncios = 0; // Contador global de anuncios en todas las pantallas
 
 // Variables globales para las imágenes del Snake
 let cabezaIzquierdaImg;
@@ -54,7 +50,7 @@ let indiceAnuncio = 0; // índice de la próxima imagen a mostrar
 
 function preload() {
     // Cargar anuncios
-    for (let i = 1; i <= 16; i++) {
+    for (let i = 1; i <= 15; i++) {
         let img = loadImage(`data/anuncios/a${i}.png`);
         anuncios.push(img);
     }

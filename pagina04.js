@@ -1,10 +1,7 @@
 // Página final de resultados
-
 class Pagina04 extends Pagina {
     constructor() {
         super();
-
-        //Variable de la música de fondo
         this.musica01 = false;
     }
 
@@ -22,7 +19,6 @@ class Pagina04 extends Pagina {
         push();
         textAlign(CENTER, TOP);
         textSize(width / 12);
-        textWrap(WORD);
         stroke(148, 0, 211);
         strokeWeight(10);
         fill(255, 0, 0);
@@ -32,40 +28,51 @@ class Pagina04 extends Pagina {
         pop();
 
         // Cuadro de fondo del resultado
+        let cuadroAncho = 360 - 30;
+        let cuadroAlto = (height - 300) - 30 - 50;
+        let cuadroX = width / 2 - cuadroAncho / 2;
+        let cuadroY = height / 6 + 15;
+
+
+
         push();
         rectMode(CORNER);
         stroke(148, 0, 211);
         strokeWeight(8);
         fill(255, 255, 0);
-        rect(width / 2 - 150, height / 15 + 75, 300, (height - 210) - (height / 15 + 75), 20);
+        rect(cuadroX, cuadroY, cuadroAncho, cuadroAlto, 20);
         pop();
 
-        // Texto del resultado
+        // Texto del resultado dentro del cuadro amarillo
         push();
-        textSize(width / 15);
-        noStroke();
-        fill(0, 0, 255);
         textFont(fuenteTexto);
-        textAlign(CENTER, TOP);
-        text('¡Felicitaciones!\nHas gastado', width / 2, height / 15 + 100);
-        let segundosPasados = Math.floor((finTiempo - comienzaTiempo) / 1000 + contadorAnuncios2 * 15 + contadorAnuncios3 * 10);
-        print(segundosPasados);
+        noStroke();
         textAlign(CENTER, CENTER);
-        if (segundosPasados >= 60) {
-            print('yes');
-            let minutosPasados = Math.floor(segundosPasados / 60);
-            text(`${minutosPasados} minutos\n${segundosPasados - minutosPasados * 60} segundos`, width / 2, height / 15 + 70 + ((height - 210) - (height / 15 + 75)) / 2);
-        } else {
-            text(`${segundosPasados} segundos`, width / 2, height / 15 + 70 + ((height - 210) - (height / 15 + 75)) / 2);
-        }
-        textAlign(CENTER, BOTTOM);
-        text('de tu vida\nen anuncios', width / 2, height - 235);
+
+        // Mensaje de felicitaciones arriba
+        textSize(width / 22);
+        fill(0, 0, 255);
+        let mensajeY = cuadroY + (cuadroAlto * 0.25);
+        text("¡Felicitaciones!\nHas gastado\ntiempo de tu vida en ver:", width / 2, mensajeY);
+
+        // Resultado en el medio
+        textSize(width / 12);
+        fill(200, 0, 0);
+        let resultadoY = cuadroY + (cuadroAlto * 0.55);
+        text(`${totalAnuncios} anuncios`, width / 2, resultadoY);
+
+        // Mensaje de reset abajo
+        textSize(width / 24);
+        fill(0, 100, 0);
+        let resetY = cuadroY + (cuadroAlto * 0.85);
+        text("Presiona R para resetear", width / 2, resetY);
+
         pop();
 
         // Nombres de desarrolladores
         push();
         textAlign(CENTER, BOTTOM);
-        textSize(width / 20);
+        textSize(width / 22);
         noStroke();
         fill(255, 0, 0);
         textFont(fuenteTexto);
@@ -73,24 +80,16 @@ class Pagina04 extends Pagina {
         pop();
     }
 
-    mousePressed() {
-        
-    }
-
     keyPressed() {
         if (key == 'R' || key == 'r') {
             pagina01Sound.stop();
             this.musica01 = false;
-            comienzaTiempo = 0;
-            finTiempo = 0;
-            contadorAnuncios2 = 0;
-            contadorAnuncios3 = 0;
+            totalAnuncios = 0; // reset contador global
             nav.seleccionarPagina(0);
         }
     }
 
     onEnter() {
-        // Aseguro configuraciones gráficas al entrar a esta página
         textAlign(LEFT, BASELINE);
         textSize(12);
         noStroke();

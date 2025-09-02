@@ -125,7 +125,6 @@ class Pagina01 extends Pagina {
 
             pagina01Sound.stop();
             this.musica01 = false;
-            finTiempo = millis();
             nav.siguientePagina();
 
         } else if (mouseX >= botonFalsoX1 && mouseX <= botonFalsoX2 &&
@@ -133,7 +132,6 @@ class Pagina01 extends Pagina {
             // Click en botón falso "!COMENZAR"
             if (!primerAnuncio) {
                 primerAnuncio = true;
-                comienzaTiempo = millis();
             }
             this.crearAnuncio();
 
@@ -148,6 +146,10 @@ class Pagina01 extends Pagina {
     }
 
     crearAnuncio() {
+
+        totalAnuncios++; // contar anuncio global
+
+
         // REPRODUCIR SONIDO AL CREAR ANUNCIO
         if (spawnAnuncioSound && spawnAnuncioSound.isLoaded()) {
             spawnAnuncioSound.play();

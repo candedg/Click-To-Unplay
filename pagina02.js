@@ -11,6 +11,12 @@ let anunciosVistosGalaga = 0;
 let duracionAnuncioGalaga = 15000; // 15s
 let anunciosNecesariosGalaga = 1;  // 1 anuncio por recompensa
 
+// === NUEVO: anuncios por click en barra de navegación ===
+let anunciosClick = []; // cada item: { img, x, y, w, h, rot }
+let contadorClicksNav = { galaga: 0, snake: 0 };
+let CLICKS_PARA_ACCION = 10; // 5 anuncios + 6° click hace la acción real
+
+
 // otras variables (alias cañones maximos y cartel cañones maximos)
 let alias = "arbia.com.ar"; // alias para transferir
 let maxCanonesGratis = 5;   // MÁXIMO TOTAL de cañones (incluye el base)
@@ -27,6 +33,7 @@ class Pagina02 extends Pagina {
     setup() {
         createCanvas(width, height);
         noStroke();
+        anunciosClick = [];
 
         // Reproduce música en loop
         if (!this.musica02) {
@@ -75,6 +82,8 @@ class Pagina02 extends Pagina {
         this.shotDelay = 150;
         this._lastAlien = 0;
         this._lastShot = 0;
+
+        anunciosClick = [];
     }
 
     draw() {
@@ -173,6 +182,10 @@ class Pagina02 extends Pagina {
 
         // Dibujar botones de selección de juego en la parte inferior
         this.dibujarBotonesSeleccion();
+
+        // Mostrar los anuncios "troleados" por clicks en los botones
+        this.dibujarAnunciosClick();
+
     }
 
     dibujarBotonesSeleccion() {
@@ -333,8 +346,8 @@ class Pagina02 extends Pagina {
 
         let indiceAleatorio = floor(random(anuncios.length));
         anuncioActualGalaga = anuncios[indiceAleatorio];
+        totalAnuncios++; // contar anuncio global
 
-        contadorAnuncios2++;
     }
 
     terminarAnuncioGalaga() {
@@ -387,6 +400,15 @@ class Pagina02 extends Pagina {
     }
 
     mousePressed() {
+        // Bloquear interacción si estamos mostrando cartel de Game Over
+        if (this.mostrarGameOver) {
+            return;
+        }
+        // NUEVA LÍNEA: Bloquear clicks si se está mostrando anuncio
+        if (mostrandoAnuncioGalaga) {
+            return; // Salir inmediatamente sin procesar ningún click
+        }
+
         // Coordenadas de los botones de la recompensa
         let botonSiX = width / 2 - 80;
         let botonSiY = height / 2 + 20;
@@ -410,14 +432,14 @@ class Pagina02 extends Pagina {
                 return;
             }
         }
-        
+
         // Coordenadas del botón de máximo de cañones
         if (mostrandoCartelMaximo) {
             let botonOkX = width / 2 - 40;
             let botonOkY = height / 2 + 40;
             let botonOkAncho = 80;
             let botonOkAlto = 30;
-            
+
             // Clic en el botón "OK"
             if (mouseX > botonOkX && mouseX < botonOkX + botonOkAncho &&
                 mouseY > botonOkY && mouseY < botonOkY + botonOkAlto) {
@@ -425,7 +447,6 @@ class Pagina02 extends Pagina {
                 return;
             }
         }
-        
 
         // --- Manejo de botones de navegación ---
         let franjaY = height - 50;
@@ -440,22 +461,47 @@ class Pagina02 extends Pagina {
         let botonSnakeX = inicioX + botonAnchoNav + espacioEntreBotones;
         let botonesY = franjaY + (50 - botonAltoNav) / 2;
 
-        // Botón GALAGA → reiniciar Galaga
+        // ¿Click en GALAGA?
         if (mouseX >= botonGalagaX && mouseX <= botonGalagaX + botonAnchoNav &&
             mouseY >= botonesY && mouseY <= botonesY + botonAltoNav) {
-            this.resetearEstadoGalaga();
+
+            contadorClicksNav.galaga++;
+
+            // click => spawnea anuncio y NO hace la acción
+            if (contadorClicksNav.galaga % CLICKS_PARA_ACCION !== 0) {
+                this.crearAnuncioClick();
+                totalAnuncios++; // contar anuncio global por click en barra
+                return;
+            }
+
+            //click => acción real y resetea el contador
+            contadorClicksNav.galaga = 0;
+            this.resetearEstadoGalaga(); // reinicia el Galaga de esta misma página
             return;
         }
 
-        // Botón SNAKE → cambiar a Snake
+        // ¿Click en SNAKE?
         if (mouseX >= botonSnakeX && mouseX <= botonSnakeX + botonAnchoNav &&
             mouseY >= botonesY && mouseY <= botonesY + botonAltoNav) {
+
+            contadorClicksNav.snake++;
+
+            // 1° a 5° click => spawnea anuncio y NO navega
+            if (contadorClicksNav.snake % CLICKS_PARA_ACCION !== 0) {
+                this.crearAnuncioClick();
+                totalAnuncios++; // contar anuncio global por click en barra
+                return;
+            }
+
+            // 6° click => acción real (navegar) y reset del contador
+            contadorClicksNav.snake = 0;
             pagina02Sound.stop();
             this.musica02 = false;
-            nav.seleccionarPagina(2); // Página Snake
+            nav.seleccionarPagina(2); // ir a Snake
             return;
         }
     }
+
 
 
     onEnter() {
@@ -480,6 +526,42 @@ class Pagina02 extends Pagina {
         this.resetearEstadoGalaga();
 
     }
+
+    // Dibuja todos los anuncios que fuimos "spawneando" al tocar la barra
+    dibujarAnunciosClick() {
+        if (!anunciosClick.length) return;
+        push();
+        imageMode(CENTER);
+        noStroke();
+        for (let a of anunciosClick) {
+            if (a.img && a.img.width > 0) {
+                image(a.img, a.x, a.y, a.w, a.h);
+            } else {
+                fill(255, 0, 255, 200);
+                rect(a.x - a.w / 2, a.y - a.h / 2, a.w, a.h, 8);
+                fill(255);
+                textAlign(CENTER, CENTER);
+                textSize(14);
+                text('AD', a.x, a.y);
+            }
+        }
+        pop();
+    }
+
+    // Crea un anuncio aleatorio en cualquier lugar de la pantalla
+    crearAnuncioClick() {
+        const img = anuncios[floor(random(anuncios.length))];
+        const w = random(width * 0.25, width * 0.55);
+        const h = w * (img && img.width > 0 ? img.height / img.width : random(0.6, 1.1));
+        const x = random(w / 2, width - w / 2);
+        const y = random(h / 2, height - h / 2);
+        anunciosClick.push({ img, x, y, w, h, rot: 0 });
+
+        if (typeof spawnAnuncioSound !== "undefined" && spawnAnuncioSound) {
+            try { spawnAnuncioSound.play(); } catch (e) { }
+        }
+    }
+
 }
 
 // Clase recompensa
