@@ -56,13 +56,16 @@ class Pagina01 extends Pagina {
         pop();
 
         // Texto "Inicio" real, discreto en la parte inferior central
-        push();
-        textAlign(CENTER, CENTER);
-        textSize(width / 35);
-        noStroke();
-        fill(0, 120, 0, 180);
-        text('Inicio', width / 2, height - 17);
-        pop();
+        // SOLO SE MUESTRA SI HAY 35 O MÁS ANUNCIOS EN PANTALLA
+        if (arrayAnuncios.length >= 35) {
+            push();
+            textAlign(CENTER, CENTER);
+            textSize(width / 35);
+            noStroke();
+            fill(0, 120, 0, 180);
+            text('Inicio', width / 2, height - 17);
+            pop();
+        }
 
         // Dibujo los anuncios en sus posiciones
         if (arrayAnuncios.length > 0) {
@@ -106,12 +109,10 @@ class Pagina01 extends Pagina {
         const botonFalsoY1 = height / 2 - 30;
         const botonFalsoY2 = height / 2 + 30;
 
-        console.log('Click en:', mouseX, mouseY);
 
         if (mouseX >= botonInicioX1 && mouseX <= botonInicioX2 &&
             mouseY >= botonInicioY1 && mouseY <= botonInicioY2) {
             // Click en botón "Inicio" real
-            console.log('*** Navegando a Pagina02');
             this.limpiarEstado();
 
             // Resetear configuraciones gráficas
@@ -130,7 +131,6 @@ class Pagina01 extends Pagina {
         } else if (mouseX >= botonFalsoX1 && mouseX <= botonFalsoX2 &&
             mouseY >= botonFalsoY1 && mouseY <= botonFalsoY2) {
             // Click en botón falso "!COMENZAR"
-            console.log('*** Click en botón falso - aparece anuncio');
             if (!primerAnuncio) {
                 primerAnuncio = true;
                 comienzaTiempo = millis();
@@ -141,11 +141,9 @@ class Pagina01 extends Pagina {
             !(mouseX >= botonInicioX1 && mouseX <= botonInicioX2 &&
                 mouseY >= botonInicioY1 && mouseY <= botonInicioY2)) {
             // Click general (fuera del botón "Inicio") después del primer anuncio
-            console.log('*** Click general - aparece anuncio');
             this.crearAnuncio();
 
         } else {
-            console.log('*** Click en área no válida');
         }
     }
 
@@ -160,7 +158,6 @@ class Pagina01 extends Pagina {
         const maxIntentos = 50;
 
         const img = anuncios[indiceAnuncio]; // elegir imagen actual
-        console.log(`Mostrando anuncio: data/anuncios/a${indiceAnuncio + 1}.png`);
         const imgWidth = img.width || 100;
         const imgHeight = img.height || 100;
 
@@ -191,6 +188,15 @@ class Pagina01 extends Pagina {
             intentos++;
         } while (intentos < maxIntentos && colisionaConBoton);
 
+        // NUEVA FUNCIONALIDAD: Verificar si ya existe un anuncio en la misma posición
+        // y eliminarlo si es así
+        for (let i = arrayAnuncios.length - 1; i >= 0; i--) {
+            if (arrayAnuncios[i].posicionX === x && arrayAnuncios[i].posicionY === y) {
+                arrayAnuncios.splice(i, 1);
+                break; // Solo eliminar el primero que encuentre en esa posición
+            }
+        }
+
         // Guardamos posición + qué imagen usar
         posicionAnuncio = {
             posicionX: x,
@@ -202,8 +208,6 @@ class Pagina01 extends Pagina {
 
         // Avanzar índice para la próxima vez (cíclico)
         indiceAnuncio = (indiceAnuncio + 1) % anuncios.length;
-
-        console.log('*** Anuncio creado en:', x, y, 'Total anuncios:', arrayAnuncios.length);
     }
 
 
@@ -211,7 +215,6 @@ class Pagina01 extends Pagina {
         // Limpio el array y bandera para reiniciar la página
         arrayAnuncios = [];
         primerAnuncio = false;
-        console.log('*** Estado de Pagina01 limpiado');
     }
 
     reset() {

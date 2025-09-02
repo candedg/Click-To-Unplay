@@ -86,7 +86,6 @@ class Pagina03 extends Pagina {
 
     // NUEVO MÉTODO: resetear completamente el estado del Snake
     resetearEstadoSnake() {
-        console.log('*** Reseteando estado completo del Snake');
 
         // Reset de variables del juego
         puntos = 0;
@@ -127,7 +126,6 @@ class Pagina03 extends Pagina {
         verGrilla = false;
         juegoInicializado = false;
 
-        console.log('*** Estado Snake reseteado completamente');
     }
 
     draw() {
@@ -324,6 +322,59 @@ class Pagina03 extends Pagina {
             text("Presiona ESPACIO para jugar de nuevo", areaX + areaAncho / 2, areaY + areaAlto / 2 + 40);
             text("o ESC para salir", areaX + areaAncho / 2, areaY + areaAlto / 2 + 65);
         }
+
+        // Dibujar botones de selección de juego en la parte inferior
+        this.dibujarBotonesSeleccion();
+    }
+
+    dibujarBotonesSeleccion() {
+        // Área de botones en la franja roja inferior
+        let franjaY = height - 50;
+        let botonAncho = 120;
+        let botonAlto = 35;
+        let espacioEntreBotones = 20;
+
+        // Calcular posiciones centradas
+        let totalAnchoBotones = (botonAncho * 2) + espacioEntreBotones;
+        let inicioX = (width - totalAnchoBotones) / 2;
+
+        let botonGalagaX = inicioX;
+        let botonSnakeX = inicioX + botonAncho + espacioEntreBotones;
+        let botonesY = franjaY + (50 - botonAlto) / 2;
+
+        // Botón GALAGA
+        push();
+        rectMode(CORNER);
+        stroke(148, 0, 211);
+        strokeWeight(3);
+        fill(0, 255, 0);
+        rect(botonGalagaX, botonesY, botonAncho, botonAlto, 10);
+
+        // Texto del botón Galaga
+        textAlign(CENTER, CENTER);
+        textSize(16);
+        noStroke();
+        fill(0, 0, 255);
+        textFont(fuenteTexto);
+        text('GALAGA', botonGalagaX + botonAncho / 2, botonesY + botonAlto / 2);
+        pop();
+
+        // Botón SNAKE
+        push();
+        rectMode(CORNER);
+        stroke(148, 0, 211);
+        strokeWeight(3);
+        fill(255, 255, 0);
+        rect(botonSnakeX, botonesY, botonAncho, botonAlto, 10);
+
+        // Texto del botón Snake
+        textAlign(CENTER, CENTER);
+        textSize(16);
+        noStroke();
+        fill(255, 0, 0);
+        textFont(fuenteTexto);
+        text('SNAKE', botonSnakeX + botonAncho / 2, botonesY + botonAlto / 2);
+        pop();
     }
 
     dibujarOfertaAnuncio() {
@@ -451,7 +502,6 @@ class Pagina03 extends Pagina {
 
         puntos++;
         contadorManzanas++;
-        console.log("Manzanas comidas:", contadorManzanas);
 
         this.generarNuevaFruta();
         // Aumentar velocidad gradualmente
@@ -462,7 +512,6 @@ class Pagina03 extends Pagina {
 
     //comer anuncio especial
     comerAnuncioEspecial() {
-        console.log("¡Anuncio especial comido!");
 
         // NUEVO: Reproducir sonido base cuando come
         if (snakeComeSound && snakeComeSound.isLoaded()) {
@@ -503,7 +552,6 @@ class Pagina03 extends Pagina {
         // Generar nueva fruta normal
         this.generarNuevaFruta();
 
-        console.log(`Puntos después del anuncio especial: ${puntos}, Segmentos: ${cuerpoSerpiente.length}`);
     }
 
 
@@ -657,14 +705,11 @@ class Pagina03 extends Pagina {
 
     // CORREGIDO: generar nueva fruta o anuncio especial
     generarNuevaFruta() {
-        console.log("Generando nueva fruta. Contador:", contadorManzanas);
 
         // Verificar si debe aparecer anuncio especial (cada 5 manzanas)
         if (contadorManzanas > 0 && contadorManzanas % 5 === 0) {
-            console.log("¡Debe aparecer anuncio especial!");
             this.generarAnuncioEspecial();
         } else {
-            console.log("Generando fruta normal");
             // Generar fruta normal
             anuncioEspecialActivo = false;
             let intentos = 0;
@@ -677,7 +722,6 @@ class Pagina03 extends Pagina {
 
     // NUEVO MÉTODO: generar anuncio especial
     generarAnuncioEspecial() {
-        console.log("Generando anuncio especial");
         anuncioEspecialActivo = true;
 
         // Seleccionar imagen aleatoria para el anuncio especial
@@ -691,7 +735,6 @@ class Pagina03 extends Pagina {
             intentos++;
         } while (this.anuncioEspecialEnSerpiente() && intentos < 100);
 
-        console.log("Anuncio especial generado en:", posicionAnuncioEspecial.x, posicionAnuncioEspecial.y);
     }
 
     // NUEVO MÉTODO: verificar si el anuncio especial está en la serpiente
@@ -761,7 +804,6 @@ class Pagina03 extends Pagina {
         posicionDuplicador = createVector(x, y);
         duplicadorVisible = true;
 
-        console.log('*** Duplicador creado en:', x, y);
     }
 
     duplicadorColisionaConSerpiente(x, y) {
@@ -800,7 +842,6 @@ class Pagina03 extends Pagina {
     }
 
     activarDuplicador() {
-        console.log('*** ¡Duplicador activado!');
 
         // NUEVO: Reproducir sonido base cuando toca el duplicador
         if (snakeComeSound && snakeComeSound.isLoaded()) {
@@ -834,19 +875,16 @@ class Pagina03 extends Pagina {
         duplicadorVisible = false;
         posicionDuplicador = null;
 
-        console.log(`*** Nuevos puntos: ${puntos}, Nueva velocidad: ${pausaMovimiento}, Longitud serpiente: ${cuerpoSerpiente.length + 1}`);
     }
 
     // NUEVO MÉTODO: activar anuncio especial (mostrar anuncio grande)
     activarAnuncioEspecial() {
-        console.log("Activando anuncio especial grande");
         mostrandoAnuncio = true;
         tiempoInicioAnuncio = millis();
 
         // Usar la misma imagen del anuncio especial pequeño para el grande
         anuncioActual = imagenAnuncioEspecial;
 
-        console.log("Mostrando anuncio especial grande");
     }
 
     inicializar() {
@@ -892,39 +930,35 @@ class Pagina03 extends Pagina {
     }
 
     mousePressed() {
-        // Si está mostrando la oferta de anuncio, manejar clicks en botones
-        if (mostrandoOfertaAnuncio) {
-            let botonAncho = 80;
-            let botonAlto = 40;
-            let espacioBotones = 40;
-            let botonSiX = areaX + areaAncho / 2 - botonAncho - espacioBotones / 2;
-            let botonNoX = areaX + areaAncho / 2 + espacioBotones / 2;
-            let botonesY = areaY + areaAlto / 2 - 80 + 100;
+        let franjaY = height - 50;
+        let botonAncho = 120;
+        let botonAlto = 35;
+        let espacioEntreBotones = 20;
 
-            // Click en botón SÍ
-            if (mouseX >= botonSiX && mouseX <= botonSiX + botonAncho &&
-                mouseY >= botonesY && mouseY <= botonesY + botonAlto) {
-                this.iniciarAnuncio();
-            }
-            // Click en botón NO
-            else if (mouseX >= botonNoX && mouseX <= botonNoX + botonAncho &&
-                mouseY >= botonesY && mouseY <= botonesY + botonAlto) {
+        let totalAnchoBotones = (botonAncho * 2) + espacioEntreBotones;
+        let inicioX = (width - totalAnchoBotones) / 2;
 
-                // NUEVO: Reproducir sonido al rechazar anuncio y perder
-                if (snakePierdeSound && snakePierdeSound.isLoaded()) {
-                    snakePierdeSound.play();
-                }
+        let botonGalagaX = inicioX;
+        let botonSnakeX = inicioX + botonAncho + espacioEntreBotones;
+        let botonesY = franjaY + (50 - botonAlto) / 2;
 
-                // Terminar juego
-                gameOver = true;
-                mostrandoOfertaAnuncio = false;
-                frutaPendiente = false;
-            }
+        // Lógica para el botón GALAGA
+        if (mouseX >= botonGalagaX && mouseX <= botonGalagaX + botonAncho &&
+            mouseY >= botonesY && mouseY <= botonesY + botonAlto) {
+            pagina03Sound.stop();
+            this.musica03 = false;
+            nav.seleccionarPagina(1); // Página Galaga
+            return;
         }
 
-       
+        // Lógica para el botón SNAKE (recargar la página actual)
+        if (mouseX >= botonSnakeX && mouseX <= botonSnakeX + botonAncho &&
+            mouseY >= botonesY && mouseY <= botonesY + botonAlto) {
+            // No es necesario detener la música, pero es buena práctica resetear el estado
+            this.resetearEstadoSnake();
+            return;
+        }
     }
-
     iniciarAnuncio() {
         mostrandoOfertaAnuncio = false;
         mostrandoAnuncio = true;
@@ -934,7 +968,6 @@ class Pagina03 extends Pagina {
         let indiceAleatorio = floor(random(anuncios.length));
         anuncioActual = anuncios[indiceAleatorio];
 
-        console.log(`Mostrando anuncio: ${indiceAleatorio + 1}`);
 
         contadorAnuncios3++;
     }
@@ -1021,7 +1054,6 @@ class Pagina03 extends Pagina {
         rectMode(CORNER);
         imageMode(CORNER);
 
-        console.log('*** Entrando a Snake - Juego reseteado');
     }
 
     onExit() {
@@ -1034,7 +1066,6 @@ class Pagina03 extends Pagina {
         // Resetear completamente el juego cuando se sale de la página
         this.resetearEstadoSnake();
 
-        console.log('*** Saliendo de Snake - Estado limpiado');
     }
 }
 

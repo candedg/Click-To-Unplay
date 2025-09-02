@@ -75,8 +75,6 @@ class Pagina02 extends Pagina {
         this.shotDelay = 150;
         this._lastAlien = 0;
         this._lastShot = 0;
-
-        console.log('*** Estado Galaga reseteado completamente');
     }
 
     draw() {
@@ -106,7 +104,7 @@ class Pagina02 extends Pagina {
             text("¡PERDISTE!", width / 2, height / 2 - 40);
             textSize(20);
             text("Presiona ESPACIO para volver a empezar", width / 2, height / 2 + 10);
-            text("o ESC para pasar al siguiente juego", width / 2, height / 2 + 40);
+            text("o ESC para ir a selección de juegos", width / 2, height / 2 + 40);
             pop();
             return;
         }
@@ -172,6 +170,59 @@ class Pagina02 extends Pagina {
                 recompensaGalaga.play()
             }
         }
+
+        // Dibujar botones de selección de juego en la parte inferior
+        this.dibujarBotonesSeleccion();
+    }
+
+    dibujarBotonesSeleccion() {
+        // Área de botones en la franja roja inferior
+        let franjaY = height - 50;
+        let botonAncho = 120;
+        let botonAlto = 35;
+        let espacioEntreBotones = 20;
+
+        // Calcular posiciones centradas
+        let totalAnchoBotones = (botonAncho * 2) + espacioEntreBotones;
+        let inicioX = (width - totalAnchoBotones) / 2;
+
+        let botonGalagaX = inicioX;
+        let botonSnakeX = inicioX + botonAncho + espacioEntreBotones;
+        let botonesY = franjaY + (50 - botonAlto) / 2;
+
+        // Botón GALAGA
+        push();
+        rectMode(CORNER);
+        stroke(148, 0, 211);
+        strokeWeight(3);
+        fill(0, 255, 0);
+        rect(botonGalagaX, botonesY, botonAncho, botonAlto, 10);
+
+        // Texto del botón Galaga
+        textAlign(CENTER, CENTER);
+        textSize(16);
+        noStroke();
+        fill(0, 0, 255);
+        textFont(fuenteTexto);
+        text('GALAGA', botonGalagaX + botonAncho / 2, botonesY + botonAlto / 2);
+        pop();
+
+        // Botón SNAKE
+        push();
+        rectMode(CORNER);
+        stroke(148, 0, 211);
+        strokeWeight(3);
+        fill(255, 255, 0);
+        rect(botonSnakeX, botonesY, botonAncho, botonAlto, 10);
+
+        // Texto del botón Snake
+        textAlign(CENTER, CENTER);
+        textSize(16);
+        noStroke();
+        fill(255, 0, 0);
+        textFont(fuenteTexto);
+        text('SNAKE', botonSnakeX + botonAncho / 2, botonesY + botonAlto / 2);
+        pop();
     }
 
     // disparo de a varios cañones
@@ -312,58 +363,100 @@ class Pagina02 extends Pagina {
 
     // teclas
     keyPressed() {
-    if (galagaGameOver && keyCode === 32) { // ESPACIO - reiniciar juego
-        galagaGameOver = false;
-        aliens = [];
-        bullets = [];
-        ship = new Ship();
-        recompensas = [];
-        recompensasObtenidasGalaga = 0;
-        anunciosVistosGalaga = 0;
-        mostrandoCartelRecompensaGalaga = false;
-        mostrandoAnuncioGalaga = false;
-        mostrandoCartelMaximo = false;
-        this.maxAliens = 3; // reset
-        cantidad = 3;       // reset
-        sonidoRevive.play()
-    }
-    
-    if (galagaGameOver && keyCode === ESCAPE) { // ESC - pasar al siguiente juego
-        console.log('*** Pasando al siguiente juego desde Game Over');
-        pagina02Sound.stop();
-        this.musica02 = false;
-        nav.siguientePagina();
-    }
-}
-
-    mousePressed() {
-        if (mostrandoCartelRecompensaGalaga) {
-            if (mouseX >= width / 2 - 80 && mouseX <= width / 2 - 20 &&
-                mouseY >= height / 2 + 20 && mouseY <= height / 2 + 50) {
-                this.iniciarAnuncioGalaga();
-            }
-            if (mouseX >= width / 2 + 20 && mouseX <= width / 2 + 80 &&
-                mouseY >= height / 2 + 20 && mouseY <= height / 2 + 50) {
-                mostrandoCartelRecompensaGalaga = false;
-            }
-            return;
+        if (galagaGameOver && keyCode === 32) { // ESPACIO - reiniciar juego
+            galagaGameOver = false;
+            aliens = [];
+            bullets = [];
+            ship = new Ship();
+            recompensas = [];
+            recompensasObtenidasGalaga = 0;
+            anunciosVistosGalaga = 0;
+            mostrandoCartelRecompensaGalaga = false;
+            mostrandoAnuncioGalaga = false;
+            mostrandoCartelMaximo = false;
+            this.maxAliens = 3; // reset
+            cantidad = 3;       // reset
+            sonidoRevive.play()
         }
 
-        if (mostrandoCartelMaximo) {
-            if (mouseX >= width / 2 - 40 && mouseX <= width / 2 + 40 &&
-                mouseY >= height / 2 + 40 && mouseY <= height / 2 + 70) {
-                mostrandoCartelMaximo = false;
-            }
-            return;
-        }
-
-        if (!mostrandoAnuncioGalaga) {
-            print('*** Pasa al segundo juego, Spaspic Snake');
+        if (galagaGameOver && keyCode === ESCAPE) { // ESC - volver a selección de juegos
             pagina02Sound.stop();
             this.musica02 = false;
-            nav.siguientePagina();
+            nav.seleccionarPagina(0); // Volver a la página inicial
         }
     }
+
+    mousePressed() {
+        // Coordenadas de los botones de la recompensa
+        let botonSiX = width / 2 - 80;
+        let botonSiY = height / 2 + 20;
+        let botonNoX = width / 2 + 20;
+        let botonNoY = height / 2 + 20;
+        let botonAncho = 60;
+        let botonAlto = 30;
+
+        if (mostrandoCartelRecompensaGalaga) {
+            // Clic en el botón "SÍ"
+            if (mouseX > botonSiX && mouseX < botonSiX + botonAncho &&
+                mouseY > botonSiY && mouseY < botonSiY + botonAlto) {
+                this.iniciarAnuncioGalaga();
+                return;
+            }
+            // Clic en el botón "NO"
+            if (mouseX > botonNoX && mouseX < botonNoX + botonAncho &&
+                mouseY > botonNoY && mouseY < botonNoY + botonAlto) {
+                mostrandoCartelRecompensaGalaga = false;
+                galagaGameOver = true;
+                return;
+            }
+        }
+        
+        // Coordenadas del botón de máximo de cañones
+        if (mostrandoCartelMaximo) {
+            let botonOkX = width / 2 - 40;
+            let botonOkY = height / 2 + 40;
+            let botonOkAncho = 80;
+            let botonOkAlto = 30;
+            
+            // Clic en el botón "OK"
+            if (mouseX > botonOkX && mouseX < botonOkX + botonOkAncho &&
+                mouseY > botonOkY && mouseY < botonOkY + botonOkAlto) {
+                mostrandoCartelMaximo = false;
+                return;
+            }
+        }
+        
+
+        // --- Manejo de botones de navegación ---
+        let franjaY = height - 50;
+        let botonAnchoNav = 120;
+        let botonAltoNav = 35;
+        let espacioEntreBotones = 20;
+
+        let totalAnchoBotones = (botonAnchoNav * 2) + espacioEntreBotones;
+        let inicioX = (width - totalAnchoBotones) / 2;
+
+        let botonGalagaX = inicioX;
+        let botonSnakeX = inicioX + botonAnchoNav + espacioEntreBotones;
+        let botonesY = franjaY + (50 - botonAltoNav) / 2;
+
+        // Botón GALAGA → reiniciar Galaga
+        if (mouseX >= botonGalagaX && mouseX <= botonGalagaX + botonAnchoNav &&
+            mouseY >= botonesY && mouseY <= botonesY + botonAltoNav) {
+            this.resetearEstadoGalaga();
+            return;
+        }
+
+        // Botón SNAKE → cambiar a Snake
+        if (mouseX >= botonSnakeX && mouseX <= botonSnakeX + botonAnchoNav &&
+            mouseY >= botonesY && mouseY <= botonesY + botonAltoNav) {
+            pagina02Sound.stop();
+            this.musica02 = false;
+            nav.seleccionarPagina(2); // Página Snake
+            return;
+        }
+    }
+
 
     onEnter() {
         // Configuraciones gráficas al entrar
@@ -374,7 +467,6 @@ class Pagina02 extends Pagina {
         rectMode(CORNER);
         imageMode(CORNER);
 
-        console.log('*** Entrando a Galaga - Juego reseteado');
     }
 
     onExit() {
@@ -387,7 +479,6 @@ class Pagina02 extends Pagina {
         // Resetear completamente el juego cuando se sale de la página
         this.resetearEstadoGalaga();
 
-        console.log('*** Saliendo de Galaga - Estado limpiado');
     }
 }
 

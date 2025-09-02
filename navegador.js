@@ -95,7 +95,6 @@ class Navegador {
                 this.paginaActual.onEnter();
             }
         } else {
-            console.log('*** Error: indice de pagina fuera de rango');
         }
     }
 
