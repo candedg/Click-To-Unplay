@@ -113,7 +113,7 @@ class Pagina02 extends Pagina {
             text("¡PERDISTE!", width / 2, height / 2 - 40);
             textSize(20);
             text("Presiona ESPACIO para volver a empezar", width / 2, height / 2 + 10);
-            text("o ESC para ir a selección de juegos", width / 2, height / 2 + 40);
+            text("o ESC para ir al SNAKE", width / 2, height / 2 + 40);
             pop();
             return;
         }
@@ -395,7 +395,7 @@ class Pagina02 extends Pagina {
         if (galagaGameOver && keyCode === ESCAPE) { // ESC - volver a selección de juegos
             pagina02Sound.stop();
             this.musica02 = false;
-            nav.seleccionarPagina(0); // Volver a la página inicial
+            nav.seleccionarPagina(2); // Volver a la página inicial
         }
     }
 
